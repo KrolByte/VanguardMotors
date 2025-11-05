@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In - Vanguard Motors</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #0a0a0a; /* main dark tone from index */
+      color: white;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    .form-box {
+      background-color: #2A2D46; /* dark blue-gray */
+      border: 1px solid #333;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-label {
+      color: #f1f1f1;
+    }
+
+    .form-control {
+      background-color: #3b3b3b;
+      border: 1px solid #555;
+      color: #9a6fe0;
+    }
+
+    .form-control::placeholder {
+      color: #aaa;
+    }
+
+    .btn-primary {
+      background-color: #cb1a1a; /* white button */
+      color: #f1f1f1;
+      border: none;
+      transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+      background-color: #dcdcdc;
+      color:#dc0c0c 
+    }
+
+    .form-text {
+      color: #ccc !important;
+    }
+
+    .extra-links {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .extra-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .extra-links a:hover {
+      text-decoration: underline;
+      color: #66b3ff;
+    }
+
+    .login-title {
+      color: #ffffff; /* white title */
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form-box">
+    <h2 class="login-title">Log In</h2>
+
+    <form method="post">
+      <div class="mb-3">
+        <label for="emailInput" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="emailInput" placeholder="Enter your email" required>
+        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="passwordInput" class="form-label">Password</label>
+        <input type="password" class="form-control" id="passwordInput" placeholder="Enter your password" required>
+      </div>
+
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="rememberCheck">
+        <label class="form-check-label" for="rememberCheck">Remember me</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Sign In</button>
+    </form>
+
+    <div class="extra-links">
+      <p class="mt-3">Don’t have an account? <a href="register.html">Register here</a></p>
+      <p><a href="index.html">← Back to home</a></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
