@@ -63,7 +63,6 @@
     </div>
     <!-- Topbar End -->
 
-
     <!-- Navbar Start -->
     <div class="container-fluid position-relative nav-bar p-0">
         <div class="position-relative px-lg-5" style="z-index: 9;">
@@ -78,24 +77,8 @@
                     <div class="navbar-nav ml-auto py-0">
                         <a href="index.html" class="nav-item nav-link">Homepage</a>
                         <a href="about.html" class="nav-item nav-link">About us</a>
-                        <a href="service.html" class="nav-item nav-link">Services</a>
                         <a href="car.html" class="nav-item nav-link">Vehicle catalog</a>
-                        <!--<div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">Cars</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="car.html" class="dropdown-item active">Vehicle catalog</a>
-                                <a href="detail.html" class="dropdown-item">Car Detail</a>
-                                <a href="booking.html" class="dropdown-item">Car Booking</a>
-                            </div>
-                        </div>-->
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="team.html" class="dropdown-item">Our team</a>
-                                <a href="testimonial.html" class="dropdown-item">Testimonies</a>
-                            </div>
-                        </div>
-                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                        <!--<a href="contact.html" class="nav-item nav-link">Contact</a>-->
                     </div>
                 </div>
             </nav>
@@ -107,7 +90,7 @@
     <div class="container-fluid page-header">
         <h1 class="display-3 text-uppercase text-white mb-3">Vehicle quote</h1>
         <div class="d-inline-flex text-white">
-            <h6 class="text-uppercase m-0"><a class="text-white" href="">Home</a></h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="">Homepage</a></h6>
             <h6 class="text-body m-0 px-3">/</h6>
             <h6 class="text-uppercase text-body m-0">Vehicle quote</h6>
         </div>
@@ -115,11 +98,14 @@
     <!-- Page Header Start -->
 
     <!-- Car Booking Start -->
+    <div id="reservationBanner" class="alert alert-info text-center" role="alert" style="display:none; position:fixed; top:90px; left:50%; transform:translateX(-50%); z-index:1060; width:90%; max-width:600px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+        <strong>Reserva pendiente.</strong> La confirmación llegará a su correo electrónico.
+    </div>
     <div class="container-fluid pb-5">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8">
-                    <form id="reservationForm" method="POST" action="/api/create-reservation">
+                    <form id="reservationForm" method="POST" action="backend-scripts/create_reservation.php">
                     <input type="hidden" name="vehicle_id" value="[VEHICLE_ID_AQUI]">
                     <input type="hidden" name="type_trasaction" value="reservation">
                     <input type="hidden" name="person_id" value="[PERSON_ID_LOGUEADO]"> 
@@ -198,9 +184,6 @@
                             <div class="alert alert-warning">
                                 **SIMULACIÓN DE PAGO:** Los datos de la tarjeta se recogen únicamente para generar el ID de pago aleatorio (`gateway_reference`) en el Back-End.
                             </div>
-                            <!--<div class="form-group">
-                                <input type="text" class="form-control p-4" placeholder="Número de Tarjeta (Simulado)" required name="card_number">
-                            </div>-->
                             <div class="row">
                                 <div class="col-6 form-group">
                                     <input type="text" class="form-control p-4" placeholder="Card number" required name="card_name">
@@ -252,19 +235,16 @@
                 <div class="col-lg-4">
                     <div class="bg-secondary p-5 mb-5">
                         <h4 class="text-primary mb-4 text-uppercase">Resumen de la Reserva</h4>
-                        
                         <div class="text-center mb-4 border-bottom pb-3">
                             <img class="img-fluid mb-3" src="img/car-rent-2.png" alt="Imagen del Vehículo a Reservar" style="max-height: 150px; object-fit: cover;">
                             <h5 class="text-white text-uppercase mb-0">**[Brand] [Model]**</h5>
                             <p class="text-white-50">Year [Year] / Color [Color]</p>
                         </div>
-
                         <div class="mb-4 border-bottom pb-3">
-                            <h6 class="text-white mb-2">Client: <span id="summaryCustomerName" class="float-right">[NAME AUTOGENERARED]</span></h6>
+                            <h6 class="text-white mb-2">Client: <span id="summaryCustomerName" class="float-right">[NAME AUTOGENERATED]</span></h6>
                             <h6 class="text-white mb-0">Assigned advisor: <span id="summaryAdvisorName" class="float-right text-success">[ADVISOR NAME]</span></h6>
                             <h6 class="text-white mb-0 mt-2">Scheduled appointment: <span id="summaryDateTime" class="float-right text-warning">[DATE AND TIME]</span></h6>
                         </div>
-                        
                         <div class="mb-4 border-bottom pb-3">
                             <h5 class="text-uppercase mb-3">Deposit details</h5>
                             <h6 class="text-white mb-2">Reservation amount: <span class="float-right text-success">**$20.000**</span></h6>
@@ -280,7 +260,6 @@
         </div>
     </div>    
     <!--Car Booking End-->
-
 
     <!-- Vendor Start -->
     <div class="container-fluid py-5">
@@ -314,7 +293,6 @@
         </div>
     </div>
     <!-- Vendor End -->
-
 
     <!-- Footer Start -->
     <div class="container-fluid bg-secondary py-5 px-sm-3 px-md-5" style="margin-top: 90px;">
@@ -388,10 +366,8 @@
     </div>
     <!-- Footer End -->
 
-
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="fa fa-angle-double-up"></i></a>
-
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -405,6 +381,36 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+    <script>
+        // Muestra un banner cuando se envía el formulario de reserva
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('reservationForm');
+            const banner = document.getElementById('reservationBanner');
+            if (!form || !banner) return;
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            form.addEventListener('submit', function (e) {
+                // Prevenir el envío real para mostrar la notificación
+                e.preventDefault();
+
+                // Mensaje (en caso de necesitar personalizar dinámicamente)
+                banner.innerHTML = '<strong>Reserva pendiente.</strong> La confirmación llegará a su correo electrónico.';
+                banner.style.display = 'block';
+
+                // Deshabilitar el botón brevemente para evitar envíos repetidos
+                if (submitBtn) submitBtn.disabled = true;
+
+                // Ocultar el banner después de 6 segundos y re-habilitar el botón
+                setTimeout(function () {
+                    banner.style.display = 'none';
+                    if (submitBtn) submitBtn.disabled = false;
+                }, 6000);
+
+                // Opcional: aquí podríamos enviar los datos por AJAX/fetch si se desea
+                // fetch(form.action, { method: form.method, body: new FormData(form) })...
+            });
+        });
+    </script>
 </body>
 
 </html>
