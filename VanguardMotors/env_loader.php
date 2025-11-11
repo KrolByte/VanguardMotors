@@ -1,32 +1,46 @@
 <?php
-// Archivo: env_loader.php (en la raíz del proyecto)
+// Archivo: env_loader.php (ÚLTIMA VERSIÓN CORREGIDA)
 
 /**
- * Función manual para cargar variables de entorno desde un archivo .env
- * @param string $path El directorio donde se encuentra el .env
+ * Función para cargar variables de entorno desde un archivo .env
  */
 function loadEnv($path) {
-    if (!file_exists($path . '/.env')) {
-        die("Error: El archivo .env no se encontró en la ruta: " . $path);
+    $env_file = $path . '/.env';
+    
+    if (!file_exists($env_file)) {
+        return; 
     }
 
-    $lines = file($path . '/.env', FILE_IGNORE_EMPTY_LINES | FILE_SKIP_EMPTY_LINES);
+    $lines = file($env_file, FILE_SKIP_EMPTY_LINES);
+    
     foreach ($lines as $line) {
-        // Ignora comentarios y líneas sin asignación
-        if (strpos(trim($line), '#') === 0 || strpos($line, '=') === false) {
+        $line = trim($line); 
+        
+        // Ignorar comentarios
+        if (strpos($line, '#') === 0 || empty($line)) {
             continue;
         }
 
+        // ASEGURARSE DE QUE HAYA UN SIGNO DE IGUAL
+        if (strpos($line, '=') === false) {
+             // Si no hay signo de igual, la línea está mal. La ignoramos.
+             continue; 
+        }
+
+        // Dividir la línea en clave y valor
         list($name, $value) = explode('=', $line, 2);
+        
         $name = trim($name);
         $value = trim($value);
 
-        // Limpia comillas si existen (opcional)
+        // Quitar comillas del valor
         if (preg_match('/^"(.*)"$/', $value, $matches)) {
             $value = $matches[1];
         }
 
-        // Establece la variable de entorno global
+        // 3. Establecer las variables de entorno
+        // putenv() puede fallar si $name está vacío o es inválido,
+        // pero la verificación anterior debería evitar esto.
         putenv(sprintf('%s=%s', $name, $value));
         $_ENV[$name] = $value;
     }

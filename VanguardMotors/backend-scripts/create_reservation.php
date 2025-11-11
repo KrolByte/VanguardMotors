@@ -1,6 +1,6 @@
 <?php
-// Incluir el archivo de configuración de la conexión a PostgreSQL
-require_once 'db_config.php';
+// Incluir la función de conexión a la BD
+require_once 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
@@ -31,6 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $transaction_status = ($payment_method === 'card') ? 'CONFIRMED' : 'PENDING';
 
     try {
+        // Obtener conexión a la base de datos
+        $pdo = getDbConnection();
+        
         // Iniciar una transacción de DB para asegurar la atomicidad (ACID)
         $pdo->beginTransaction();
 
