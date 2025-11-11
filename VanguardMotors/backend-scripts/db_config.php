@@ -1,9 +1,10 @@
 <?php
+require 'env_loader.php';
 // Configuración de PostgreSQL
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'nombre_de_tu_base_de_datos'); // Reemplaza con tu nombre de DB
-define('DB_USER', 'tu_usuario_postgres');      // Reemplaza con tu usuario
-define('DB_PASSWORD', 'tu_contraseña');        // Reemplaza con tu contraseña
+define('DB_NAME', 'VM'); // Reemplaza con tu nombre de DB
+define('DB_USER', 'postgres');      // Reemplaza con tu usuario
+define('DB_PASSWORD', 'pg584sql');        // Reemplaza con tu contraseña
 
 // Intenta establecer la conexión
 try {
