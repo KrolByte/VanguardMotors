@@ -1,16 +1,21 @@
 <?php
-// Archivo: backend_scripts/get_vehicles.php
+/**
+ * Archivo: backend-scripts/get_vehicles.php
+ * Propósito: Obtener lista de vehículos con sus imágenes desde la BD
+ * Devuelve: JSON con array de vehículos
+ */
 
-require_once 'db.php'; // Usa el db.php que ya funciona
+require_once 'db.php';
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: * ');
+header('Access-Control-Allow-Origin: *');
 
-if ($_SERVER["REQUEST_METHOD"] == "GET" ){
+if ($_SERVER["REQUEST_METHOD"] == "GET") {
     try {
         $pdo = getDbConnection();
 
         // Consulta SQL usando STRING_AGG para PostgreSQL
+        // NOTE: la columna de imágenes en la tabla es `image_url`
         $sql_vehicles = "SELECT 
                             v.vehicle_id,
                             v.brand,
@@ -19,32 +24,60 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" ){
                             v.color,
                             v.price,
                             v.availability,
-                            -- Usamos STRING_AGG para obtener todas las URLs de imagen
-                            STRING_AGG(vi.image_url, ',') as images 
-                         FROM vehicle v
-                         LEFT JOIN vehicle_image vi ON v.vehicle_id = vi.vehicle_id
-                         -- Aseguramos que solo se muestren los vehículos disponibles o de interés
-                         WHERE v.availability != 'sold' AND v.availability != 'maintenance'
-                         GROUP BY v.vehicle_id 
-                         ORDER BY v.vehicle_id ASC";
+                            v.description,
+                            STRING_AGG(vi.image_url, ',') as images
+                        FROM vehicle v
+                        LEFT JOIN vehicle_image vi ON v.vehicle_id = vi.vehicle_id
+                        GROUP BY v.vehicle_id
+                        ORDER BY v.vehicle_id ASC";
 
         $stmt = $pdo->prepare($sql_vehicles);
         $stmt->execute();
         $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        if (!$vehicles) {
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'data' => [],
+                'message' => 'No vehicles found'
+            ]);
+            exit;
+        }
+
+        // Procesar imágenes y formatear respuesta
         $formatted_vehicles = [];
         
         foreach ($vehicles as $vehicle) {
-            
-            // Procesar imágenes y obtener la imagen principal (la primera en la cadena)
+            // Procesar imágenes (comma-separated)
             $images = [];
             if (!empty($vehicle['images'])) {
-                $images = array_map('trim', explode(',', $vehicle['images']));
-                // Filtramos cualquier URL vacía que pueda quedar
-                $images = array_filter($images);
+                $image_paths = explode(',', $vehicle['images']);
+                foreach ($image_paths as $path) {
+                    $p = trim($path);
+                    if ($p === '') continue;
+
+                    // Si es URL absoluta (http/https), dejarla tal cual
+                    if (preg_match('#^https?://#i', $p)) {
+                        $images[] = $p;
+                        continue;
+                    }
+
+                    // Normalizar rutas locales: quitar slash inicial y anteponer 'img/' si no empieza por 'img/'
+                    $p = ltrim($p, '/');
+                    if (!preg_match('#^img/#i', $p)) {
+                        $p = 'img/' . $p;
+                    }
+                    $images[] = $p;
+                }
             }
-            
-            // Mapear disponibilidad para texto en el Front-End
+
+            // Si no hay imágenes, usar imagen por defecto
+            if (empty($images)) {
+                $images[] = 'img/car-rent-6.png';
+            }
+
+            // Mapear disponibilidad
             $availability_map = [
                 'available' => 'Available',
                 'sold' => 'Sold',
@@ -59,15 +92,14 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" ){
                 'year' => (int)$vehicle['year'],
                 'color' => $vehicle['color'],
                 'price' => (float)$vehicle['price'],
-                // Texto legible para el usuario
                 'availability' => $availability_map[$vehicle['availability']] ?? ucfirst($vehicle['availability']),
-                // Estado para las clases CSS (success, danger, etc.)
-                'availability_status' => $vehicle['availability'], 
-                // Usamos la primera imagen como principal (debe ser la que tiene is_main=TRUE)
-                'primary_image' => $images[0] ?? 'img/default_car.png' 
+                'availability_status' => $vehicle['availability'],
+                'images' => $images,
+                'primary_image' => $images[0] ?? 'img/car-rent-6.png'
             ];
         }
 
+        // Enviar respuesta
         http_response_code(200);
         echo json_encode([
             'success' => true,
@@ -76,32 +108,19 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" ){
         ]);
 
     } catch (Exception $e) {
-        // Aseguramos que el error de DB se capture y se envíe al Front-End
         error_log("Error en get_vehicles: " . $e->getMessage());
         http_response_code(500);
+        
         echo json_encode([
             'success' => false,
-            'message' => 'Error retrieving data from server. Details: ' . $e->getMessage()
+            'message' => 'Error retrieving vehicles: ' . $e->getMessage()
         ]);
     }
 } else {
     http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Method not allowed'
+    ]);
 }
-
-data.data.forEach(vehicle => {
-    
-    let imageUrl = vehicle.primary_image;
-    
-    // Si la URL es local y comienza con /, quitamos el / y añadimos el prefijo de la carpeta
-    if (imageUrl.startsWith('/img/')) {
-        // Asume que VMPage es la carpeta raíz del proyecto
-        imageUrl = 'img/' + imageUrl.substring(5); // Remueve "/img/"
-    }
-
-    // Usar la ruta corregida en el HTML:
-    htmlContent += `
-        <img class="img-fluid mb-4" src="${imageUrl}" alt="${vehicle.brand} ${vehicle.model}">
-    `;
-});
 ?>
