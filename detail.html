@@ -27,6 +27,21 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+    <style>
+        /* Highlight selected thumbnail */
+        #vehicleThumbnailsContainer img.thumb-active {
+            border: 3px solid #007bff;
+            box-sizing: border-box;
+        }
+        #vehicleThumbnailsContainer img { max-height: 90px; object-fit: cover; }
+        /* Larger related vehicle cards for the carousel */
+        .related-carousel .rent-item img { max-height: 220px; object-fit: cover; }
+        .related-carousel .rent-item { min-height: 360px; display: flex; flex-direction: column; justify-content: space-between; }
+        .related-carousel .rent-item h4 { font-size: 1.05rem; }
+        .related-carousel .rent-item h3 { font-size: 1.15rem; }
+        .owl-nav .owl-prev, .owl-nav .owl-next { background: rgba(0,0,0,0.6); color: #fff; padding: 8px 12px; border-radius: 4px; }
+        .owl-nav .owl-prev i, .owl-nav .owl-next i { font-size: 16px; }
+    </style>
 </head>
 
 <body>
@@ -82,7 +97,6 @@
                 <div class="collapse navbar-collapse justify-content-between px-3" id="navbarCollapse">
                     <div class="navbar-nav ml-auto py-0">
                         <a href="index.html" class="nav-item nav-link">Homepage</a>
-                        <a href="about.html" class="nav-item nav-link">About us</a>
                         <a href="car.html" class="nav-item nav-link">Vehicle catalog</a>
                     </div>
                 </div>
@@ -95,7 +109,9 @@
     <div class="container-fluid page-header">
         <h1 class="display-3 text-uppercase text-white mb-3">Vehicle Detail</h1>
         <div class="d-inline-flex text-white">
-            <h6 class="text-uppercase m-0"><a class="text-white" href="">Homepage</a></h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="index.html">Homepage</a></h6>
+            <h6 class="text-body m-0 px-3">/</h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="car.html">Vehicle Catalog</a></h6>
             <h6 class="text-body m-0 px-3">/</h6>
             <h6 class="text-uppercase text-body m-0">Vehicle Detail</h6>
         </div>
@@ -107,40 +123,32 @@
     <div class="container pt-5">
         <div class="row">
             <div class="col-lg-8 mb-5">
-                <h1 class="display-4 text-uppercase mb-5">**[BRAND] [MODEL]**</h1>
-                <div class="row mx-n2 mb-3">
-                    <div class="col-md-3 col-6 px-2 pb-2">
-                        <img class="img-fluid w-100" src="img/gallery-1.jpg" alt="Vista frontal del vehículo">
+                <h1 class="display-4 text-uppercase mb-5" id="vehicleTitle">Loading...</h1>
+                <div class="row mx-n2 mb-3" id="vehicleGallery">
+                    <div class="col-12 text-center" id="vehicleMainImageContainer">
+                        <p class="text-muted">Loading images...</p>
                     </div>
-                    <div class="col-md-3 col-6 px-2 pb-2">
-                        <img class="img-fluid w-100" src="img/gallery-2.jpg" alt="Interior del vehículo">
-                    </div>
-                    <div class="col-md-3 col-6 px-2 pb-2">
-                        <img class="img-fluid w-100" src="img/gallery-3.jpg" alt="Detalle del vehículo">
-                    </div>
-                    <div class="col-md-3 col-6 px-2 pb-2">
-                        <img class="img-fluid w-100" src="img/gallery-4.jpg" alt="Vista trasera del vehículo">
-                    </div>
+                    <div class="w-100" id="vehicleThumbnailsContainer"></div>
                 </div>
                 <h3 class="text-uppercase mb-3 mt-4">Description</h3>
-                <p>**[DESCRIPTION]** Tempor erat elitr at rebum at at clita aliquyam consetetur. Diam dolor diam ipsum et, tempor voluptua sit consetetur sit. Aliquyam diam amet diam et eos sadipscing labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus clita duo justo et tempor consetetur takimata eirmod, dolores takimata consetetur invidunt magna dolores aliquyam dolores dolore. Amet erat amet et magna</p>
+                <p id="vehicleDescription">Loading...</p>
                 <h3 class="text-uppercase mb-3 mt-4">Technical specifications</h3>
                 <div class="row pt-2">
                     <div class="col-md-3 col-6 mb-2 d-flex align-items-center">
                         <i class="fa fa-calendar-alt text-primary mr-2"></i>
-                        <span>**Year:** [YEAR]</span>
+                        <span>Year: <span id="vehicleYear">-</span></span>
                     </div>
                     <div class="col-md-3 col-6 mb-2 d-flex align-items-center">
                         <i class="fa fa-paint-brush text-primary mr-2"></i>
-                        <span>**Color:** [COLOR]</span>
+                        <span>Color: <span id="vehicleColor">-</span></span>
                     </div>
                     <div class="col-md-3 col-6 mb-2 d-flex align-items-center">
                         <i class="fa fa-check-circle text-success mr-2"></i>
-                        <span>**Availability:** [AVAILABILITY]</span>
+                        <span>Availability: <span id="vehicleAvailability">-</span></span>
                     </div>
                     <div class="col-md-3 col-6 mb-2 d-flex align-items-center">
                         <i class="fa fa-tag text-primary mr-2"></i>
-                        <span>**Price:** $[PRICE]</span>
+                        <span>Price: $<span id="vehiclePrice">-</span></span>
                     </div>
                 </div>
             </div>
@@ -148,12 +156,12 @@
                 <div class="bg-secondary p-5">
                     <h3 class="text-primary text-center mb-4">purchase options</h3>
                     <div class="form-group mb-4">
-                        <a href="booking.html" class="btn btn-primary btn-block" style="height: 50px; font-size: 1.25rem;">
+                        <a href="booking.html" class="btn btn-primary btn-block" style="height: 50px; font-size: 1.25rem;" id="reserveBtn">
                             <i class="fa fa-calendar-alt mr-2"></i>Reserve
                         </a>
                     </div>
                     <div class="form-group mb-0">
-                        <a href="quote.html" class="btn btn-dark btn-block" style="height: 50px; font-size: 1.25rem;">
+                        <a href="quote.html" class="btn btn-dark btn-block" style="height: 50px; font-size: 1.25rem;" id="quoteBtn">
                             <i class="fa fa-clipboard-list mr-2"></i>Request quote
                         </a>
                     </div>
@@ -169,26 +177,9 @@
     <div class="container-fluid pb-5">
         <div class="container pb-5">
             <h2 class="mb-4">Related vehicles</h2>
-            <div class="owl-carousel related-carousel position-relative" style="padding: 0 30px;">
-                <div class="vehicle-card">
-                    <img class="img-fluid mb-4" src="img/car-rent-1.png" alt="">
-                    <h4 class="text-uppercase mb-2">**[Brand related]** [Model Related]</h4>
-                    <h5 class="text-primary mb-3">**Price:** $[Price Related]</h5>
-                    <div class="d-flex justify-content-center mb-4">
-                        <div class="px-2 d-flex align-items-center">
-                            <i class="fa fa-calendar-alt text-primary mr-1"></i>
-                            <span>[Year]</span>
-                        </div>
-                        <div class="px-2 border-left border-right d-flex align-items-center">
-                            <i class="fa fa-paint-brush text-primary mr-1"></i>
-                            <span>[Color]</span>
-                        </div>
-                        <div class="px-2 d-flex align-items-center">
-                            <i class="fa fa-check-circle text-success mr-1"></i>
-                            <span>[Availability]</span>
-                        </div>
-                    </div>
-                    <a class="btn btn-primary px-3" href="detail.html">See details</a>
+            <div class="owl-carousel related-carousel position-relative" style="padding: 0 30px;" id="relatedVehiclesContainer">
+                <div class="text-center">
+                    <p class="text-muted">Loading related vehicles...</p>
                 </div>
             </div>
         </div>
@@ -315,6 +306,223 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+
+    <!-- Vehicle Detail Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const vehicleId = urlParams.get('vehicle_id');
+
+            if (!vehicleId) {
+                showError('No vehicle ID provided');
+                return;
+            }
+
+            loadVehicleDetail(vehicleId);
+        });
+
+        function loadVehicleDetail(vehicleId) {
+            const apiUrl = 'backend-scripts/get_vehicle_detail.php?vehicle_id=' + encodeURIComponent(vehicleId);
+            
+            fetch(apiUrl)
+                .then(resp => {
+                    if (!resp.ok) throw new Error('Network response was not ok: ' + resp.status);
+                    return resp.json();
+                })
+                .then(json => {
+                    if (json.success) {
+                        renderVehicleDetail(json.data);
+                        renderRelatedVehicles(json.related_vehicles, vehicleId);
+                    } else {
+                        showError(json.message || 'Failed to load vehicle details');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    showError('Error loading vehicle details');
+                });
+        }
+
+        function renderVehicleDetail(vehicle) {
+            // Título
+            document.getElementById('vehicleTitle').textContent = vehicle.brand + ' ' + vehicle.model;
+
+            // Galería de imágenes: main image + thumbnails
+            const mainContainer = document.getElementById('vehicleMainImageContainer');
+            const thumbsContainer = document.getElementById('vehicleThumbnailsContainer');
+            mainContainer.innerHTML = '';
+            thumbsContainer.innerHTML = '';
+
+            const images = vehicle.images && vehicle.images.length ? vehicle.images : ['img/car-rent-6.png'];
+
+            // Main image (first image is primary — SQL orders by is_main DESC)
+            const mainImg = document.createElement('img');
+            mainImg.className = 'img-fluid mb-4';
+            mainImg.src = images[0];
+            mainImg.alt = vehicle.brand + ' ' + vehicle.model;
+            mainImg.style.width = '100%';
+            mainImg.style.maxHeight = '520px';
+            mainImg.style.objectFit = 'cover';
+            mainImg.onerror = function() { this.src = 'img/car-rent-6.png'; };
+            // Clicking main image opens the modal to view it larger
+            mainImg.style.cursor = 'pointer';
+            mainImg.addEventListener('click', function() {
+                openImageModal(images, 0);
+            });
+            mainContainer.appendChild(mainImg);
+
+            // Thumbnails: static main image (from DB is_main) but open modal to enlarge
+            images.forEach((img, idx) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-3 col-6 px-2 pb-2 d-inline-block';
+                col.style.maxWidth = '25%';
+                const imgEl = document.createElement('img');
+                imgEl.className = 'img-fluid w-100';
+                imgEl.src = img;
+                imgEl.alt = vehicle.brand + ' ' + vehicle.model + ' thumb ' + (idx+1);
+                imgEl.style.cursor = 'pointer';
+                imgEl.onerror = function() { this.src = 'img/car-rent-6.png'; };
+
+                // clicking thumbnail opens modal with the clicked image (index aware)
+                imgEl.addEventListener('click', function() {
+                    openImageModal(images, idx);
+                });
+
+                // mark the thumbnail that corresponds to the initial main image as active
+                if (idx === 0) {
+                    imgEl.classList.add('thumb-active');
+                }
+
+                col.appendChild(imgEl);
+                thumbsContainer.appendChild(col);
+            });
+
+            // Descripción
+            document.getElementById('vehicleDescription').textContent = vehicle.description || 'No description available';
+
+            // Especificaciones técnicas
+            document.getElementById('vehicleYear').textContent = vehicle.year || '-';
+            document.getElementById('vehicleColor').textContent = vehicle.color || '-';
+            document.getElementById('vehicleAvailability').textContent = vehicle.availability || '-';
+            document.getElementById('vehiclePrice').textContent = new Intl.NumberFormat('es-CO').format(vehicle.price || 0);
+
+            // Botones de acción
+            document.getElementById('reserveBtn').href = 'booking.html?vehicle_id=' + vehicle.vehicle_id;
+            document.getElementById('quoteBtn').href = 'quote.html?vehicle_id=' + vehicle.vehicle_id;
+        }
+
+                // Modal helper: show an image in a Bootstrap modal. Accepts images array and index to display.
+                function openImageModal(imagesArray, index) {
+                        // create modal if not present
+                        let modal = document.getElementById('imageModal');
+                        if (!modal) {
+                                const modalHtml = `
+                                <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:720px;">
+                                        <div class="modal-content bg-transparent border-0">
+                                            <div class="modal-body p-0 text-center position-relative">
+                                                <button type="button" class="close position-absolute" style="right:10px;top:10px;color:#fff;z-index:1051;" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <img id="imageModalImg" src="" class="img-fluid" style="max-height:520px; width:100%; object-fit:cover;" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`;
+                                const div = document.createElement('div');
+                                div.innerHTML = modalHtml;
+                                document.body.appendChild(div.firstElementChild);
+                                modal = document.getElementById('imageModal');
+                        }
+
+                        const modalImg = document.getElementById('imageModalImg');
+                        modalImg.src = imagesArray[index] || 'img/car-rent-6.png';
+                        // show modal via jQuery/Bootstrap
+                        $('#imageModal').modal('show');
+                }
+
+        function renderRelatedVehicles(vehicles, currentVehicleId) {
+            const container = document.getElementById('relatedVehiclesContainer');
+            container.innerHTML = '';
+
+            if (vehicles && vehicles.length > 0) {
+                // Ensure owl carousel is destroyed if already initialized
+                if ($(container).hasClass('owl-loaded')) {
+                    $(container).trigger('destroy.owl.carousel');
+                    $(container).removeClass('owl-loaded');
+                    $(container).find('.owl-stage-outer').children().unwrap();
+                }
+
+                vehicles.forEach(v => {
+                    // Create a column-like card similar to the catalog (`car.html`)
+                    const item = document.createElement('div');
+                    item.className = 'item';
+
+                    const card = document.createElement('div');
+                    card.className = 'rent-item mb-4 text-center';
+
+                    const img = document.createElement('img');
+                    img.className = 'img-fluid mb-4';
+                    img.src = v.primary_image || (v.images && v.images[0]) || 'img/car-rent-6.png';
+                    img.alt = (v.brand || '') + ' ' + (v.model || '');
+                    img.onerror = function() { this.src = 'img/car-rent-6.png'; };
+
+                    const title = document.createElement('h4');
+                    title.className = 'text-uppercase mb-4';
+                    title.textContent = (v.brand || '') + ' ' + (v.model || '');
+
+                    const price = document.createElement('h3');
+                    price.className = 'text-primary mb-3';
+                    price.textContent = '$' + (v.price ? new Intl.NumberFormat('es-CO').format(v.price) : '0');
+
+                    const meta = document.createElement('div');
+                    meta.className = 'd-flex justify-content-center mb-4';
+                    meta.innerHTML = `
+                        <div class="px-2"><i class="fa fa-car text-primary mr-1"></i><span>${v.year || ''}</span></div>
+                        <div class="px-2 border-left border-right d-flex align-items-center"><i class="fa fa-paint-brush text-primary mr-2"></i><span>${v.color || ''}</span></div>
+                        <div class="px-2"><i class="fa fa-check-circle text-primary mr-1"></i><span class="font-weight-bold ${v.availability && v.availability.toLowerCase() === 'available' ? 'text-success' : 'text-danger'}">${v.availability || ''}</span></div>
+                    `;
+
+                    const btn = document.createElement('a');
+                    btn.className = 'btn btn-primary px-3';
+                    btn.href = 'detail.html?vehicle_id=' + encodeURIComponent(v.vehicle_id || '');
+                    btn.textContent = 'View Details';
+
+                    card.appendChild(img);
+                    card.appendChild(title);
+                    card.appendChild(price);
+                    card.appendChild(meta);
+                    card.appendChild(btn);
+
+                    item.appendChild(card);
+                    container.appendChild(item);
+                });
+
+                // Initialize Owl Carousel on the related container
+                $(document).ready(function() {
+                    $('#relatedVehiclesContainer').owlCarousel({
+                        loop: false,
+                        margin: 24,
+                        nav: true,
+                        dots: false,
+                        navText: ['<i class="fa fa-chevron-left"></i>', '<i class="fa fa-chevron-right"></i>'],
+                        responsive: {
+                            0: { items: 1 },
+                            576: { items: 1 },
+                            768: { items: 2 },
+                            992: { items: 3 }
+                        }
+                    });
+                });
+
+            } else {
+                container.innerHTML = '<div class="text-center"><p class="text-muted">No related vehicles found</p></div>';
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('vehicleTitle').textContent = 'Error loading vehicle';
+            document.getElementById('vehicleDescription').textContent = msg;
+        }
+    </script>
 </body>
 
 </html>
