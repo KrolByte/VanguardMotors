@@ -10,7 +10,7 @@ $password = "102938";
 
 try {
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
-    $conexion = new PDO($dsn, $user, $password, [
+    $conn = new PDO($dsn, $user, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
