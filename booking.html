@@ -48,26 +48,26 @@
             </div>
             <div class="col-md-6 text-center text-lg-right">
                 <div class="d-inline-flex align-items-center">
-        <a class="text-body px-3" href="https://www.facebook.com/tu-pagina" target="_blank">
-            <i class="fab fa-facebook-f"></i>
-        </a>
-        <a class="text-body px-3" href="https://www.twitter.com/tu-usuario" target="_blank">
-            <i class="fab fa-twitter"></i>
-        </a>
-        <a class="text-body px-3" href="https://www.linkedin.com/in/tu-perfil" target="_blank">
-            <i class="fab fa-linkedin-in"></i>
-        </a>
-        <a class="text-body px-3" href="https://www.instagram.com/tu-usuario" target="_blank">
-            <i class="fab fa-instagram"></i>
-        </a>
-        <a class="text-body pl-3" href="https://www.youtube.com/tu-canal" target="_blank">
-            <i class="fab fa-youtube"></i>
-        </a>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-        </svg>
-    </div>
+                    <a class="text-body px-3" href="https://www.facebook.com/tu-pagina" target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a class="text-body px-3" href="https://www.twitter.com/tu-usuario" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a class="text-body px-3" href="https://www.linkedin.com/in/tu-perfil" target="_blank">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a class="text-body px-3" href="https://www.instagram.com/tu-usuario" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a class="text-body pl-3" href="https://www.youtube.com/tu-canal" target="_blank">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                    </svg>
+                </div>
             </div>
         </div>
     </div>
@@ -86,7 +86,6 @@
                 <div class="collapse navbar-collapse justify-content-between px-3" id="navbarCollapse">
                     <div class="navbar-nav ml-auto py-0">
                         <a href="index.html" class="nav-item nav-link">Homepage</a>
-                        <a href="about.html" class="nav-item nav-link">About us</a>
                         <a href="car.html" class="nav-item nav-link">Vehicle catalog</a>
                         <!--<a href="contact.html" class="nav-item nav-link">Contact</a>-->
                     </div>
@@ -98,51 +97,59 @@
 
     <!-- Page Header Start -->
     <div class="container-fluid page-header">
-        <h1 class="display-3 text-uppercase text-white mb-3">Vehicle quote</h1>
+        <h1 class="display-3 text-uppercase text-white mb-3">Vehicle Reserve</h1>
         <div class="d-inline-flex text-white">
-            <h6 class="text-uppercase m-0"><a class="text-white" href="">Homepage</a></h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="index.html">Homepage</a></h6>
             <h6 class="text-body m-0 px-3">/</h6>
-            <h6 class="text-uppercase text-body m-0">Vehicle quote</h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="car.html">Vehicle Catalog</a></h6>
+            <h6 class="text-body m-0 px-3">/</h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="detail.html">Vehicle Details</a></h6>
+            <h6 class="text-body m-0 px-3">/</h6>
+            <h6 class="text-uppercase text-body m-0">Vehicle Reserve</h6>
         </div>
     </div>
     <!-- Page Header Start -->
 
     <!-- Car Booking Start -->
     <div id="reservationBanner" class="alert alert-info text-center" role="alert" style="display:none; position:fixed; top:90px; left:50%; transform:translateX(-50%); z-index:1060; width:90%; max-width:600px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
-        <strong>Reserva pendiente.</strong> La confirmación llegará a su correo electrónico.
-    </div>
-    <div class="container-fluid pb-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8">
-                    <form id="reservationForm" method="POST" action="backend-scripts/create_reservation.php">
-                    <input type="hidden" name="vehicle_id" value="[VEHICLE_ID_AQUI]">
+    <strong>Processing...</strong> Please wait.
+</div>
+
+<div class="container-fluid pb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <form id="reservationForm" method="POST" action="backend-scripts/create_reservation.php">
+                    <input type="hidden" name="vehicle_id" value="">
                     <input type="hidden" name="type_trasaction" value="reservation">
-                    <input type="hidden" name="person_id" value="[PERSON_ID_LOGUEADO]"> 
+                    <input type="hidden" name="person_id" value=""> 
+                    <input type="hidden" name="payment_reason" value="reservation">
+                    
                     <h2 class="mb-4 text-uppercase text-primary">1. Your personal data</h2>
                     <div class="mb-5 border-bottom pb-4">
                         <p class="alert alert-success">Your information is pre-filled. Please confirm your phone number.</p>
                         <div class="row">
                             <div class="col-6 form-group">
                                 <label for="fullName">Full Name</label>
-                                <input type="text" id="fullName" class="form-control p-4 bg-light" value="[FULL NAME AUTOGENERATED]" name="customer_name" readonly required="required">
+                                <input type="text" id="fullName" class="form-control p-4 bg-light" value="" name="full_name" readonly required="required">
                             </div>
                             <div class="col-6 form-group">
                                 <label for="identification">Identification</label>
-                                <input type="text" id="identification" class="form-control p-4 bg-light" value="[ID AUTOGENERATED]" name="person_identification" readonly required="required">
+                                <input type="text" id="identification" class="form-control p-4 bg-light" value="" name="identification" readonly required="required">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-6 form-group">
                                 <label for="email">Email</label>
-                                <input type="email" id="email" class="form-control p-4 bg-light" value="[EMAIL AUTOGENERATED]" name="customer_email" readonly required="required">
+                                <input type="email" id="email" class="form-control p-4 bg-light" value="" name="email" readonly required="required">
                             </div>
                             <div class="col-6 form-group">
                                 <label for="phone">Phone number<span class="text-danger">*</span></label>
-                                <input type="tel" id="phone" class="form-control p-4" placeholder="Your phone number" name="customer_phone" required="required">
+                                <input type="tel" id="phone" class="form-control p-4" placeholder="Your phone number" name="phone" required="required">
                             </div>
                         </div>
                     </div>
+                    
                     <h2 class="mb-4 text-uppercase text-primary">2. Schedule your appointment</h2>
                     <div class="mb-5 border-bottom pb-4">
                         <div class="row">
@@ -150,8 +157,6 @@
                                 <label for="advisorSelect">Select Advisor<span class="text-danger">*</span></label>
                                 <select id="advisorSelect" class="custom-select px-4" style="height: 50px;" name="advisor_id" required>
                                     <option value="" disabled selected>Select an advisor</option>
-                                    <option value="1" data-name="Juan Pérez">Advisor Juan Pérez</option>
-                                    <option value="2" data-name="María López">Advisor María López</option>
                                 </select>
                             </div>
                             <div class="col-md-6 form-group">
@@ -179,6 +184,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <h2 class="mb-4 text-uppercase text-primary">3. Deposit payment ($20.000)</h2>
                     <div class="mb-5">
                         <div class="form-group">
@@ -188,7 +194,6 @@
                                 <option value="card">Credit/Debit card</option>
                                 <option value="transfer">Bank transfer</option>
                             </select>
-                            <input type="hidden" name="payment_reason" value="reservation"> 
                         </div>
                         <div id="cardDetails" style="display: none;">
                             <div class="alert alert-warning">
@@ -196,43 +201,19 @@
                             </div>
                             <div class="row">
                                 <div class="col-6 form-group">
-                                    <input type="text" class="form-control p-4" placeholder="Card number" required name="card_name">
+                                    <input type="text" class="form-control p-4" placeholder="Card number" name="card_number">
                                 </div>
                                 <div class="col-3 form-group">
-                                    <input type="text" class="form-control p-4" placeholder="MM/YY" required name="card_expiry">
+                                    <input type="text" class="form-control p-4" placeholder="MM/YY" name="card_expiry">
                                 </div>
                                 <div class="col-3 form-group">
-                                    <input type="text" class="form-control p-4" placeholder="CVV" required name="card_cvv">
+                                    <input type="text" class="form-control p-4" placeholder="CVV" name="card_cvv">
                                 </div>
                             </div>
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    const paymentMethodSelect = document.getElementById('paymentMethod');
-                                    const cardDetailsDiv = document.getElementById('cardDetails');
-                                    const transferDetailsDiv = document.getElementById('transferDetails');
-                                    // Función para manejar la visibilidad de los campos de pago
-                                    function togglePaymentFields() {
-                                        const selectedMethod = paymentMethodSelect.value;
-                                        // Ocultar todos los detalles por defecto
-                                        cardDetailsDiv.style.display = 'none';
-                                        transferDetailsDiv.style.display = 'none';
-                                        // Mostrar el contenedor apropiado basado en la selección
-                                        if (selectedMethod === 'card') {
-                                            cardDetailsDiv.style.display = 'block';
-                                        } else if (selectedMethod === 'transfer') {
-                                            transferDetailsDiv.style.display = 'block';
-                                        }
-                                    }
-                                    // 1. Ejecutar la función cuando el usuario cambia la selección
-                                    paymentMethodSelect.addEventListener('change', togglePaymentFields);
-                                    // 2. Ejecutar al cargar la página (en caso de que haya una opción preseleccionada)
-                                    togglePaymentFields(); 
-                                });
-                            </script>
                         </div>
                         <div id="transferDetails" style="display: none;">
                             <p class="alert alert-info">
-                                **Transferencia Bancaria:** Realice el pago y su reserva estará en estado **PENDIENTE** hasta la verificación del siguiente número de referencia.
+                                **Transferencia Bancaria:** Realice el pago y su reserva estará en estado **PENDIENTE** hasta la verificación del número de referencia.
                             </p>
                             <div class="form-group">
                                 <input type="text" class="form-control p-4" placeholder="Invoice reference number (Required)" name="proof_reference">
@@ -240,35 +221,37 @@
                         </div>
                     </div>
                     <button class="btn btn-block btn-primary py-3" type="submit">CONFIRM RESERVATION AND PAY</button>
-                    </form>
-                </div>
-                <div class="col-lg-4">
-                    <div class="bg-secondary p-5 mb-5">
-                        <h4 class="text-primary mb-4 text-uppercase">Resumen de la Reserva</h4>
-                        <div class="text-center mb-4 border-bottom pb-3">
-                            <img class="img-fluid mb-3" src="img/car-rent-2.png" alt="Imagen del Vehículo a Reservar" style="max-height: 150px; object-fit: cover;">
-                            <h5 class="text-white text-uppercase mb-0">**[Brand] [Model]**</h5>
-                            <p class="text-white-50">Year [Year] / Color [Color]</p>
-                        </div>
-                        <div class="mb-4 border-bottom pb-3">
-                            <h6 class="text-white mb-2">Client: <span id="summaryCustomerName" class="float-right">[NAME AUTOGENERATED]</span></h6>
-                            <h6 class="text-white mb-0">Assigned advisor: <span id="summaryAdvisorName" class="float-right text-success">[ADVISOR NAME]</span></h6>
-                            <h6 class="text-white mb-0 mt-2">Scheduled appointment: <span id="summaryDateTime" class="float-right text-warning">[DATE AND TIME]</span></h6>
-                        </div>
-                        <div class="mb-4 border-bottom pb-3">
-                            <h5 class="text-uppercase mb-3">Deposit details</h5>
-                            <h6 class="text-white mb-2">Reservation amount: <span class="float-right text-success">**$20.000**</span></h6>
-                            <h6 class="text-white mb-0 text-danger">Condition: <span class="float-right font-weight-bold">NON-REFUNDABLE</span></h6>
-                        </div>
-                        <div class="mb-4">
-                            <h4 class="text-primary text-uppercase">Total to pay: <span class="float-right">$20.000</span></h4>
-                        </div>
-                        <p class="small text-white-50 text-center pt-3">This payment guarantees the reservation of the appointment space; it is non-refundable.</p>
+                </form>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="bg-secondary p-5 mb-5">
+                    <h4 class="text-primary mb-4 text-uppercase">Resumen de la Reserva</h4>
+                    <div class="text-center mb-4 border-bottom pb-3">
+                        <img id="summaryVehicleImage" class="img-fluid mb-3" src="img/car-rent-2.png" alt="Vehicle Image" style="max-height: 150px; object-fit: cover;">
+                        
+                        <h5 id="summaryVehicleModel" class="text-white text-uppercase mb-0">**Loading...**</h5>
+                        <p id="summaryVehicleMeta" class="text-white-50">Year / Color</p>
                     </div>
+                    <div class="mb-4 border-bottom pb-3">
+                        <h6 class="text-white mb-2">Client: <span id="summaryCustomerName" class="float-right">Loading...</span></h6>
+                        <h6 class="text-white mb-0">Assigned advisor: <span id="summaryAdvisorName" class="float-right text-success">Select Advisor</span></h6>
+                        <h6 class="text-white mb-0 mt-2">Scheduled appointment: <span id="summaryDateTime" class="float-right text-warning">Select Date & Time</span></h6>
+                    </div>
+                    <div class="mb-4 border-bottom pb-3">
+                        <h5 class="text-uppercase mb-3">Deposit details</h5>
+                        <h6 class="text-white mb-2">Reservation amount: <span class="float-right text-success">**$20.000**</span></h6>
+                        <h6 class="text-white mb-0 text-danger">Condition: <span class="float-right font-weight-bold">NON-REFUNDABLE</span></h6>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="text-primary text-uppercase">Total to pay: <span class="float-right">$20.000</span></h4>
+                    </div>
+                    <p class="small text-white-50 text-center pt-3">This payment guarantees the reservation of the appointment space; it is non-refundable.</p>
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
+</div>    
     <!--Car Booking End-->
 
     <!-- Vendor Start -->
@@ -391,36 +374,368 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
-    <script>
-        // Muestra un banner cuando se envía el formulario de reserva
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('reservationForm');
-            const banner = document.getElementById('reservationBanner');
-            if (!form || !banner) return;
-            const submitBtn = form.querySelector('button[type="submit"]');
+   <script>
+    // Configuración de la Aplicación
+    const RESERVATION_PRICE = 20000;
+    const API_URLS = {
+        vehicle: 'backend-scripts/get_vehicle_detail.php', 
+        advisors: 'backend-scripts/get_advisors.php', 
+        availability: 'backend-scripts/get_advisor_availability.php',
+        userData: 'backend-scripts/get_logged_user_data.php'
+    };
 
-            form.addEventListener('submit', function (e) {
-                // Prevenir el envío real para mostrar la notificación
-                e.preventDefault();
+    let vehicleData = {};
+    let clientData = {};
+    let bookedDates = {}; 
+    const defaultHours = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+    
 
-                // Mensaje (en caso de necesitar personalizar dinámicamente)
-                banner.innerHTML = '<strong>Reserva pendiente.</strong> La confirmación llegará a su correo electrónico.';
-                banner.style.display = 'block';
+    // =================================================================
+    // 1. INICIALIZACIÓN Y CARGA DE DATOS AL CARGAR LA PÁGINA
+    // =================================================================
 
-                // Deshabilitar el botón brevemente para evitar envíos repetidos
-                if (submitBtn) submitBtn.disabled = true;
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const vehicleId = urlParams.get('vehicle_id');
 
-                // Ocultar el banner después de 6 segundos y re-habilitar el botón
-                setTimeout(function () {
-                    banner.style.display = 'none';
-                    if (submitBtn) submitBtn.disabled = false;
-                }, 6000);
+        if (!vehicleId) {
+            showError("Error Crítico: No se proporcionó el ID del vehículo en la URL.", true);
+            return;
+        }
 
-                // Opcional: aquí podríamos enviar los datos por AJAX/fetch si se desea
-                // fetch(form.action, { method: form.method, body: new FormData(form) })...
-            });
+        // Ejecutar las funciones iniciales
+        loadVehicleData(vehicleId);
+        loadAdvisors();
+        setupPaymentToggle();
+        
+        // ✅ Esperar a que jQuery y DateTimePicker estén listos
+        $(document).ready(function() {
+            setupDateTimePickers();
         });
-    </script>
+        
+        checkUserSessionAndLoadData(); 
+    });
+
+
+    // =================================================================
+    // 2. CARGA DE DATOS DEL CLIENTE LOGUEADO (FETCH REAL)
+    // =================================================================
+
+    function checkUserSessionAndLoadData() {
+        const banner = document.getElementById('reservationBanner');
+        banner.innerHTML = '<strong>Cargando datos del usuario...</strong>';
+        banner.className = 'alert alert-info text-center';
+        banner.style.display = 'block';
+        
+        fetch(API_URLS.userData)
+            .then(resp => {
+                if (!resp.ok) throw new Error("Error de red");
+                return resp.json();
+            })
+            .then(json => {
+                console.log('Respuesta de usuario:', json);
+                
+                if (json.success && json.is_logged_in && json.data) {
+                    clientData = json.data;
+                    populateClientData(clientData);
+                    banner.style.display = 'none';
+                } else {
+                    showError("Debe iniciar sesión para hacer una reserva.", true);
+                }
+            })
+            .catch(error => {
+                showError(`Error cargando datos del usuario: ${error.message}`, true);
+                console.error('Error:', error);
+            });
+    }
+
+    function populateClientData(data) {
+        document.getElementById('fullName').value = data.full_name || 'N/A';
+        document.getElementById('identification').value = data.identification || 'N/A';
+        document.getElementById('email').value = data.email || 'N/A';
+        
+        if (document.getElementById('phone').value === '') { 
+             document.getElementById('phone').value = data.phone || '';
+        }
+        
+        document.querySelector('input[name="person_id"]').value = data.person_id || '';
+        document.getElementById('summaryCustomerName').textContent = data.full_name || 'N/A';
+        updateSummary();
+    }
+
+
+    // =================================================================
+    // 3. CARGA DE DATOS DEL VEHÍCULO (FETCH REAL)
+    // =================================================================
+
+    function loadVehicleData(vehicleId) {
+        document.getElementById('summaryVehicleModel').textContent = 'Cargando vehículo...';
+        
+        fetch(API_URLS.vehicle + '?vehicle_id=' + vehicleId) 
+            .then(resp => {
+                if (!resp.ok) throw new Error("Error de red");
+                return resp.json();
+            })
+            .then(json => {
+                console.log('Respuesta de vehículo:', json);
+                
+                if (json.success && json.data) {
+                    vehicleData = json.data;
+                    document.querySelector('input[name="vehicle_id"]').value = vehicleId;
+
+                    const imageUrl = vehicleData.images && vehicleData.images.length > 0 
+                                     ? vehicleData.images[0] 
+                                     : 'img/car-placeholder.png';
+                    
+                    document.getElementById('summaryVehicleImage').src = imageUrl;
+                    document.getElementById('summaryVehicleImage').alt = vehicleData.brand + ' ' + vehicleData.model;
+                    document.getElementById('summaryVehicleModel').textContent = `${vehicleData.brand} ${vehicleData.model}`;
+                    document.getElementById('summaryVehicleMeta').textContent = `Año ${vehicleData.year} / Color ${vehicleData.color}`;
+                } else {
+                    showError("Error: Vehículo no encontrado.", true);
+                }
+            })
+            .catch(error => {
+                showError(`Error cargando vehículo: ${error.message}`, true);
+                console.error('Error:', error);
+            });
+    }
+
+
+    // =================================================================
+    // 4. CARGA DE ASESORES Y DISPONIBILIDAD (FETCH REAL)
+    // =================================================================
+    
+    function loadAdvisors() {
+        const select = document.getElementById('advisorSelect');
+        select.innerHTML = '<option value="" disabled selected>Cargando asesores...</option>';
+        
+        fetch(API_URLS.advisors)
+            .then(resp => {
+                if (!resp.ok) throw new Error("Error de red");
+                return resp.json();
+            })
+            .then(json => {
+                console.log('Respuesta de asesores:', json);
+                
+                if (json.success && json.data && json.data.length > 0) {
+                    select.innerHTML = '<option value="" disabled selected>Seleccione un asesor</option>';
+                    json.data.forEach(advisor => {
+                        const option = document.createElement('option');
+                        option.value = advisor.advisor_id;
+                        option.textContent = advisor.full_name;
+                        option.setAttribute('data-name', advisor.full_name);
+                        select.appendChild(option);
+                    });
+                } else {
+                    select.innerHTML = '<option value="" disabled selected>No hay asesores disponibles</option>';
+                    showError("No se encontraron asesores disponibles.", false);
+                }
+            })
+            .catch(error => {
+                showError(`Error cargando asesores: ${error.message}`, false);
+                console.error('Error:', error);
+            });
+
+        // Event listener para cuando se selecciona un asesor
+        select.addEventListener('change', handleAdvisorChange);
+    }
+
+    function handleAdvisorChange() {
+        const select = document.getElementById('advisorSelect');
+        const advisorId = select.value;
+        const advisorName = select.options[select.selectedIndex].getAttribute('data-name');
+        
+        document.getElementById('summaryAdvisorName').textContent = advisorName;
+        
+        if (advisorId) {
+            // Limpiar fecha y hora
+            $('#dateReserva').val('');
+            $('#timeReserva').val('');
+            document.getElementById('summaryDateTime').textContent = 'Seleccione Fecha y Hora';
+            
+            loadAdvisorAvailability(advisorId);
+        }
+        updateSummary();
+    }
+
+    function loadAdvisorAvailability(advisorId) {
+        const banner = document.getElementById('reservationBanner');
+        banner.innerHTML = '<strong>Cargando disponibilidad...</strong>';
+        banner.className = 'alert alert-info text-center';
+        banner.style.display = 'block';
+
+        fetch(API_URLS.availability + '?advisor_id=' + advisorId)
+            .then(resp => {
+                if (!resp.ok) throw new Error("Error de red");
+                return resp.json();
+            })
+            .then(json => {
+                console.log('Disponibilidad:', json);
+                
+                if (json.success) {
+                    bookedDates = json.data || {}; 
+                    
+                    // ✅ Re-inicializar DateTimePickers con disponibilidad
+                    $(document).ready(function() {
+                        setupDateTimePickers(true);
+                    });
+                    
+                    banner.style.display = 'none';
+                } else {
+                    showError("Error al cargar disponibilidad.", false);
+                    bookedDates = {};
+                }
+            })
+            .catch(error => {
+                showError(`Error de disponibilidad: ${error.message}`, false);
+                console.error('Error:', error);
+                bookedDates = {};
+            });
+    }
+    
+    
+    // =================================================================
+    // 5. LÓGICA DE DATE/TIME PICKERS (Restricción de Horas)
+    // =================================================================
+
+    function setupDateTimePickers(reinit = false) {
+        // ✅ Verificar que jQuery y DateTimePicker estén disponibles
+        if (typeof $ === 'undefined' || typeof $.fn.datetimepicker === 'undefined') {
+            console.error('jQuery o DateTimePicker no están cargados');
+            return;
+        }
+
+        // Si ya está inicializado, destruir
+        if (reinit) {
+            try {
+                const datePicker = $('#date-reserva').data("DateTimePicker");
+                const timePicker = $('#time-reserva').data("DateTimePicker");
+                if (datePicker) datePicker.destroy();
+                if (timePicker) timePicker.destroy();
+            } catch (e) {
+                console.warn('Error al destruir pickers:', e);
+            }
+        }
+
+        // ✅ Selector de Fecha
+        $('#date-reserva').datetimepicker({
+            format: 'YYYY-MM-DD',
+            minDate: moment().add(1, 'day')
+        });
+        
+        // Evento al cambiar fecha
+        $('#date-reserva').on('change.datetimepicker', function(e) {
+            updateSummary();
+            $('#timeReserva').val('');
+            const timePicker = $('#time-reserva').data("DateTimePicker");
+            if (timePicker) {
+                timePicker.clear();
+                updateDisabledTimeIntervals();
+            }
+            document.getElementById('summaryDateTime').textContent = 'Seleccione Fecha y Hora';
+        });
+
+        // ✅ Selector de Hora
+        $('#time-reserva').datetimepicker({
+            format: 'HH:mm',
+            enabledHours: defaultHours.map(h => parseInt(h.split(':')[0])), 
+            stepping: 60
+        });
+        
+        // Evento al cambiar hora
+        $('#time-reserva').on('change.datetimepicker', function(e) {
+            updateSummary();
+        });
+
+        // ✅ Actualizar horas deshabilitadas
+        updateDisabledTimeIntervals();
+    }
+
+    // ✅ Actualizar intervalos de tiempo deshabilitados
+    function updateDisabledTimeIntervals() {
+        const selectedDate = $('#dateReserva').val();
+        const timePicker = $('#time-reserva').data("DateTimePicker");
+        
+        if (!timePicker || !selectedDate) return;
+
+        const reservedTimes = bookedDates[selectedDate] || [];
+        
+        // Crear intervalos deshabilitados (bloquear 1 hora completa)
+        const intervals = reservedTimes.map(timeStr => {
+            const [h, m] = timeStr.split(':').map(Number);
+            const start = moment(selectedDate + ' ' + timeStr, 'YYYY-MM-DD HH:mm');
+            const end = moment(start).add(59, 'minutes');
+            return [start, end];
+        });
+        
+        timePicker.disabledTimeIntervals(intervals);
+    }
+    
+    
+    // =================================================================
+    // 6. LÓGICA DE PAGO Y RESUMEN
+    // =================================================================
+
+    function setupPaymentToggle() {
+        const paymentMethodSelect = document.getElementById('paymentMethod');
+        const cardDetailsDiv = document.getElementById('cardDetails');
+        const transferDetailsDiv = document.getElementById('transferDetails');
+        
+        function togglePaymentFields() {
+            const selectedMethod = paymentMethodSelect.value;
+            
+            cardDetailsDiv.style.display = 'none';
+            transferDetailsDiv.style.display = 'none';
+            
+            cardDetailsDiv.querySelectorAll('input').forEach(input => {
+                input.required = false;
+                input.value = '';
+            });
+            transferDetailsDiv.querySelectorAll('input').forEach(input => {
+                input.required = false;
+                input.value = '';
+            });
+
+            if (selectedMethod === 'card') {
+                cardDetailsDiv.style.display = 'block';
+                cardDetailsDiv.querySelectorAll('input').forEach(input => input.required = true);
+            } else if (selectedMethod === 'transfer') {
+                transferDetailsDiv.style.display = 'block';
+                transferDetailsDiv.querySelectorAll('input').forEach(input => input.required = true);
+            }
+        }
+        
+        paymentMethodSelect.addEventListener('change', togglePaymentFields);
+        togglePaymentFields();
+    }
+
+    function updateSummary() {
+        const date = document.getElementById('dateReserva').value;
+        const time = document.getElementById('timeReserva').value;
+        
+        if (date && time) {
+            const formattedDateTime = moment(date + ' ' + time, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY HH:mm');
+            document.getElementById('summaryDateTime').textContent = formattedDateTime;
+        } else if (date) {
+            document.getElementById('summaryDateTime').textContent = moment(date, 'YYYY-MM-DD').format('DD/MM/YYYY') + ' - Seleccione Hora';
+        } else {
+            document.getElementById('summaryDateTime').textContent = 'Seleccione Fecha y Hora';
+        }
+    }
+
+    function showError(msg, isCritical) {
+        const banner = document.getElementById('reservationBanner');
+        banner.className = 'alert alert-' + (isCritical ? 'danger' : 'warning') + ' text-center';
+        banner.innerHTML = `<strong>Error:</strong> ${msg}`;
+        banner.style.display = 'block';
+        
+        if (isCritical) {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+        }
+    }
+</script>
 </body>
 
 </html>
