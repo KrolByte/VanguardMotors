@@ -735,6 +735,220 @@
             if (submitBtn) submitBtn.disabled = true;
         }
     }
+
+    // ... (Tus funciones existentes)
+    
+// =================================================================
+// 7. ENVÍO DE FORMULARIO (AJAX con fetch)
+// =================================================================
+
+    document.getElementById('reservationForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Detiene el envío normal del formulario (que causaría la redirección)
+        
+        const form = event.target;
+        const submitButton = form.querySelector('button[type="submit"]');
+        const formData = new FormData(form);
+
+        // Validaciones extra de campos
+        if (!validateForm(formData)) {
+            showError("Por favor, complete todos los campos requeridos correctamente.", false);
+            return;
+        }
+
+        // Mostrar indicador de carga y deshabilitar botón
+        const originalButtonText = submitButton.textContent;
+        submitButton.textContent = 'Procesando reserva...';
+        submitButton.disabled = true;
+        showInfo("Procesando su reserva y pago. Espere un momento.");
+
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(async response => {
+            // Asegurarse de que la respuesta sea JSON, incluso si es un error HTTP
+            const text = await response.text();
+            try {
+                const json = JSON.parse(text);
+                if (!response.ok) {
+                    throw new Error(json.message || `Error del servidor: ${response.status}`);
+                }
+                return json;
+            } catch (e) {
+                // Si falla el parseo, el servidor devolvió un error PHP o HTML inesperado
+                console.error("Respuesta no JSON:", text);
+                throw new Error("Respuesta inválida del servidor. Código: " + response.status);
+            }
+        })
+        .then(data => {
+            // Manejo de la respuesta JSON exitosa
+            const statusText = data.status === 'CONFIRMED' ? 'Confirmada' : 'Pendiente de Verificación';
+            const statusStyle = data.status === 'CONFIRMED' ? 'success' : 'warning';
+            
+            // Mostrar SweetAlert personalizado
+            showSuccessAlert(statusText, data.transaction_id);
+
+            // Opcional: Redirigir o limpiar el formulario después de la alerta
+            // window.location.href = `confirmation.html?trans_id=${data.transaction_id}`;
+
+        })
+        .catch(error => {
+            // Manejo de cualquier error de la red o del servidor
+            showError(`Fallo en la reserva: ${error.message}`, true);
+        })
+        .finally(() => {
+            // Restaurar el botón
+            submitButton.textContent = originalButtonText;
+            submitButton.disabled = false;
+        });
+    });
+
+
+    // =================================================================
+    // 8. FUNCIONES DE UTILIDAD (ALERTAS Y VALIDACIÓN)
+    // =================================================================
+
+    function showInfo(msg) {
+        const banner = document.getElementById('reservationBanner');
+        banner.className = 'alert alert-info text-center';
+        banner.innerHTML = `<strong>Info:</strong> ${msg}`;
+        banner.style.display = 'block';
+    }
+
+    function showError(msg, isCritical) {
+        const banner = document.getElementById('reservationBanner');
+        banner.className = 'alert alert-' + (isCritical ? 'danger' : 'warning') + ' text-center';
+        banner.innerHTML = `<strong>Error:</strong> ${msg}`;
+        banner.style.display = 'block';
+        
+        if (isCritical) {
+            document.querySelector('button[type="submit"]').disabled = true;
+        }
+    }
+
+    function validateForm(formData) {
+        // Validación de campos obligatorios básicos
+        if (!formData.get('advisor_id') || !formData.get('appointment_date') || !formData.get('appointment_time') || !formData.get('payment_method')) {
+            return false;
+        }
+
+        const paymentMethod = formData.get('payment_method');
+
+        if (paymentMethod === 'transfer' && !formData.get('proof_reference')) {
+            return false;
+        }
+
+        if (paymentMethod === 'card' && (!formData.get('card_number') || !formData.get('card_expiry') || !formData.get('card_cvv'))) {
+            return false;
+        }
+        
+        // Validación de ID de persona (asegurar que el cliente esté cargado)
+        if (!formData.get('person_id') || formData.get('person_id') === 'N/A' || formData.get('person_id') === '') {
+             showError("Error: Los datos del cliente no se cargaron correctamente. Intente recargar la página.", true);
+             return false;
+        }
+
+        return true;
+    }
+    
+    // Función para mostrar la alerta de éxito usando el JavaScript nativo (o puedes usar SweetAlert2 si lo incluyes)
+    function showSuccessAlert(statusText, transactionId) {
+        // Ocultar banner de proceso
+        document.getElementById('reservationBanner').style.display = 'none';
+
+        const message = `
+            ✅ ¡Reserva Exitosa!
+            ------------------------------------------------
+            Estado de su reserva: ${statusText}
+            Referencia de Transacción: ${transactionId}
+            
+            Pronto recibirá un correo electrónico con los detalles de confirmación.
+            Gracias por elegir Vanguard Motors.
+        `;
+
+        alert(message);
+        
+        // Limpiar el formulario después de la alerta
+        document.getElementById('reservationForm').reset();
+    }
+</script>
+</script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// ===============================================
+// ENVÍO DE RESERVA CON AJAX + SWEETALERT2
+// ===============================================
+document.getElementById('reservationForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Evita recarga/redirección
+
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Mostrar loading en el botón
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Procesando reserva...';
+
+    // Crear FormData con todos los campos
+    const formData = new FormData(this);
+
+    fetch('backend-scripts/create_reservation.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // ÉXITO - Mostrar ventana bonita
+            Swal.fire({
+                icon: 'success',
+                title: '¡Reserva realizada con éxito!',
+                html: `
+                    <p><strong>Tu reserva está pendiente de aprobación.</strong></p>
+                    <p>En los próximos minutos recibirás un correo electrónico con:</p>
+                    <ul class="text-left mt-3" style="margin: 0 auto; display: inline-block;">
+                        <li>Datos del vehículo</li>
+                        <li>Fecha y hora de la cita</li>
+                        <li>Nombre del asesor asignado</li>
+                        <li>Instrucciones para el día de la visita</li>
+                    </ul>
+                `,
+                confirmButtonText: '¡Entendido!',
+                confirmButtonColor: '#007bff',
+                allowOutsideClick: false
+            }).then(() => {
+                // Opcional: redirigir a mis reservas o al inicio
+                window.location.href = 'my_reservations.html'; // o 'index.html'
+            });
+
+        } else {
+            // ERROR
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al crear la reserva',
+                text: data.message || 'Por favor intenta de nuevo o contacta al concesionario.',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de conexión',
+            text: 'No se pudo conectar con el servidor. Revisa tu conexión e intenta de nuevo.',
+            confirmButtonText: 'OK'
+        });
+    })
+    .finally(() => {
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
 </script>
 </body>
 
