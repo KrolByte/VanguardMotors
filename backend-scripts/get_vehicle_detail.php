@@ -1,11 +1,9 @@
 <?php
 header('Content-Type: application/json');
 
-// db.php is in the same folder as this script
 require_once __DIR__ . '/db.php';
 
 try {
-    // Obtener el ID del vehículo desde los parámetros GET
     $vehicle_id = isset($_GET['vehicle_id']) ? intval($_GET['vehicle_id']) : 0;
 
     if ($vehicle_id <= 0) {
@@ -19,17 +17,10 @@ try {
 
     $conn = getDbConnection();
 
-    // Consulta principal del vehículo
+    // 1. Consulta Principal del Vehículo (OPTIMIZADA)
     $query = "
         SELECT 
-            v.vehicle_id,
-            v.brand,
-            v.model,
-            v.year,
-            v.color,
-            v.price,
-            v.description,
-            v.availability,
+            v.vehicle_id, v.brand, v.model, v.year, v.color, v.price, v.description, v.availability,
             STRING_AGG(vi.image_url, ',' ORDER BY vi.is_main DESC) as images
         FROM vehicle v
         LEFT JOIN vehicle_image vi ON v.vehicle_id = vi.vehicle_id
@@ -50,44 +41,35 @@ try {
         exit;
     }
 
-    // Normalizar imágenes
+    // 2. Normalizar datos del vehículo principal
     $images_raw = $vehicle['images'] ? explode(',', $vehicle['images']) : [];
     $images = array_map(function($img) {
         $img = trim($img);
         if (filter_var($img, FILTER_VALIDATE_URL)) {
             return $img;
         }
-        // Si no es URL absoluta, asegurar que comience con img/
+        // Asegurar la ruta local 'img/'
         $img = ltrim($img, '/');
         if (strpos($img, 'img/') !== 0) {
-            $img = 'img/' . $img;
+            return 'img/' . $img;
         }
         return $img;
     }, $images_raw);
 
-    // Establecer imagen principal
     $primary_image = count($images) > 0 ? $images[0] : 'img/car-rent-6.png';
+    $availability_text = (isset($vehicle['availability']) && strtolower($vehicle['availability']) === 'available') ? 'Available' : ucfirst($vehicle['availability'] ?? 'Not Available');
+    
+    // Preparar los parámetros para vehículos relacionados
+    $basePrice = floatval($vehicle['price'] ?? 0);
+    $priceRange = 20000000;
+    $yearRange = 2;
+    $yearValue = intval($vehicle['year'] ?? 0);
 
-    // Mapear disponibilidad
-    $availability_text = (isset($vehicle['availability']) && $vehicle['availability'] === 'available') ? 'Available' : ucfirst($vehicle['availability'] ?? 'Not Available');
 
-    // Consulta de vehículos relacionados: ampliada para asegurar siempre resultados
-    // Calculamos un rango de precio fijo: +/- 20.000.000 alrededor del precio del vehículo
-    $basePrice = isset($vehicle['price']) ? floatval($vehicle['price']) : 0;
-    $priceRange = 20000000; // +/- 20,000,000
-    $yearRange = 2; // años de diferencia aceptable
-
-    // Primer intento: buscar por marca, precio cercano, color o año cercano
-    // Limitar a máximo 6 resultados
+    // 3. Consulta de vehículos relacionados (sin cambios significativos en la lógica, solo formato)
     $related_query = "
         SELECT 
-            v.vehicle_id,
-            v.brand,
-            v.model,
-            v.year,
-            v.color,
-            v.price,
-            v.availability,
+            v.vehicle_id, v.brand, v.model, v.year, v.color, v.price, v.availability,
             STRING_AGG(vi.image_url, ',' ORDER BY vi.is_main DESC) as images,
             (CASE WHEN v.brand = :brand THEN 1 ELSE 0 END) AS brand_match,
             (CASE WHEN v.color = :color THEN 1 ELSE 0 END) AS color_match,
@@ -114,64 +96,53 @@ try {
         ':vehicle_id' => $vehicle_id,
         ':price' => $basePrice,
         ':price_range' => $priceRange,
-        ':year' => intval($vehicle['year']),
+        ':year' => $yearValue,
         ':year_range' => $yearRange
     ]);
 
     $related_vehicles = $related_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Si el primer intento devuelve menos de 2, rellenar con vehículos por cercanía de precio
+    // 4. Relleno de vehículos relacionados si es necesario
     if (count($related_vehicles) < 2) {
         // Obtener IDs ya seleccionados para excluirlos
         $existingIds = array_map(function($r) { return (int)$r['vehicle_id']; }, $related_vehicles);
-        $existingIds[] = (int)$vehicle_id; // excluir el actual también
-
-        // Preparar placeholders con nombres para excluir (evitar mezclar positional y named params)
-        $excludePlaceholders = [];
-        foreach ($existingIds as $k => $id) {
-            $excludePlaceholders[] = ':ex' . $k;
-        }
-        $placeholders = implode(',', $excludePlaceholders);
+        $existingIds[] = (int)$vehicle_id; // excluir el actual
 
         $needed = 2 - count($related_vehicles);
+        
+        // Uso de marcadores de posición con el operador IN
+        $placeholders = str_repeat('?,', count($existingIds) - 1) . '?';
 
         $fallback_query = "
             SELECT 
-                v.vehicle_id,
-                v.brand,
-                v.model,
-                v.year,
-                v.color,
-                v.price,
-                v.availability,
+                v.vehicle_id, v.brand, v.model, v.year, v.color, v.price, v.availability,
                 STRING_AGG(vi.image_url, ',' ORDER BY vi.is_main DESC) as images
             FROM vehicle v
             LEFT JOIN vehicle_image vi ON v.vehicle_id = vi.vehicle_id
             WHERE v.vehicle_id NOT IN ($placeholders)
             GROUP BY v.vehicle_id, v.brand, v.model, v.year, v.color, v.price, v.availability
-            ORDER BY ABS(v.price - :price) ASC
-            LIMIT :limit
+            ORDER BY ABS(v.price - ?) ASC
+            LIMIT ?
         ";
 
         $fb_stmt = $conn->prepare($fallback_query);
 
-        // Bind excluded ids by name
-        foreach ($existingIds as $k => $id) {
-            $fb_stmt->bindValue(':ex' . $k, $id, PDO::PARAM_INT);
+        // Bind Values
+        $i = 1;
+        foreach ($existingIds as $id) {
+            $fb_stmt->bindValue($i++, $id, PDO::PARAM_INT);
         }
-        $fb_stmt->bindValue(':price', $basePrice);
-        $fb_stmt->bindValue(':limit', $needed, PDO::PARAM_INT);
+        $fb_stmt->bindValue($i++, $basePrice);
+        $fb_stmt->bindValue($i++, $needed, PDO::PARAM_INT);
 
         $fb_stmt->execute();
         $fill = $fb_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Unir resultados
-        foreach ($fill as $f) {
-            $related_vehicles[] = $f;
-        }
+        $related_vehicles = array_merge($related_vehicles, $fill);
     }
 
-    // Normalizar imágenes de vehículos relacionados
+    // 5. Normalizar imágenes de vehículos relacionados y devolver la respuesta
     $related_data = array_map(function($v) {
         $images_raw = $v['images'] ? explode(',', $v['images']) : [];
         $images = array_map(function($img) {
@@ -181,14 +152,15 @@ try {
             }
             $img = ltrim($img, '/');
             if (strpos($img, 'img/') !== 0) {
-                $img = 'img/' . $img;
+                return 'img/' . $img;
             }
             return $img;
         }, $images_raw);
 
         $v['primary_image'] = count($images) > 0 ? $images[0] : 'img/car-rent-6.png';
-        $v['availability'] = (isset($v['availability']) && $v['availability'] === 'available') ? 'Available' : ucfirst($v['availability'] ?? 'Not Available');
-        unset($v['images']);
+        $v['availability'] = (isset($v['availability']) && strtolower($v['availability']) === 'available') ? 'Available' : ucfirst($v['availability'] ?? 'Not Available');
+        // Quitar la lista completa de imágenes para evitar cargar mucho el JSON de relacionados
+        unset($v['images']); 
         return $v;
     }, $related_vehicles);
 
@@ -204,16 +176,17 @@ try {
             'description' => $vehicle['description'],
             'availability' => $availability_text,
             'primary_image' => $primary_image,
-            'images' => $images
+            'images' => $images // Lista completa y ordenada para el carrusel JS
         ],
         'related_vehicles' => $related_data
     ]);
 
 } catch (Exception $e) {
     http_response_code(500);
+    error_log("DB Error: " . $e->getMessage()); // Loguear el error en el servidor
     echo json_encode([
         'success' => false,
-        'message' => 'Error retrieving vehicle details: ' . $e->getMessage()
+        'message' => 'Internal server error. Please try again later.'
     ]);
 }
 ?>
