@@ -22,5 +22,7 @@ function getDbConnection() {
     } catch (PDOException $e) {
         throw new Exception("Database Connection Failed: " . $e->getMessage());
     }
+
+
 }
 ?>
