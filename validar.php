@@ -19,7 +19,6 @@ if ($user && $password === $user['password_hash']) {
 
     session_start();
     $_SESSION['email'] = $user['email'];
-    $_SESSION['name']  = $user['email'];  // pon aquí otro campo si quieres
 
     header("Location: index_users.php");
     exit;
