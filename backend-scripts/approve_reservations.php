@@ -1,12 +1,12 @@
 <?php
-// 1. Configuración y Conexión a la Base de Datos
-require_once 'conexion.php'; // ASEGÚRATE que 'conexion.php' esté en la misma carpeta
 
-// Inicializar variables para mensajes de alerta
+require_once 'conexion.php'; 
+
+
 $alert_message = '';
 $alert_class = '';
 
-// Manejo de mensajes de éxito o error enviados desde process_reservation.php
+
 if (isset($_GET['success'])) {
     $alert_message = htmlspecialchars($_GET['success']);
     $alert_class = 'alert-success';
@@ -16,10 +16,7 @@ if (isset($_GET['success'])) {
 }
 
 try {
-    // 2. Consulta para obtener las cotizaciones/reservas pendientes
-    // Filtramos SOLO las que tienen status = 'Pendiente'
-    // JOIN con person para obtener el nombre del cliente.
-    // JOIN con vehicle para obtener el modelo del vehículo.
+   
  $sql = "
         SELECT 
             c.quote_id, 
@@ -41,13 +38,13 @@ try {
             c.quote_date ASC;
     ";
     
-    // **CAMBIO CLAVE:** Usamos prepare y execute en lugar de query()
+   
    $stmt = $conexion->prepare($sql);
     $stmt->execute();
     $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    // Manejo de error de conexión o consulta
+   
     $alert_message = "Error de base de datos: " . $e->getMessage();
     $alert_class = 'alert-danger';
     $reservations = []; 

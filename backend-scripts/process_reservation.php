@@ -1,14 +1,12 @@
 <?php
-// process_reservation.php
 
-// 1. Incluir la conexión a la base de datos (Están en la misma carpeta)
 require_once 'conexion.php'; 
 
 $quote_id = $_POST['quote_id'] ?? null;
 $action = $_POST['action'] ?? null;
 $error_message = null;
 
-// 2. Verificar que se recibieron los datos necesarios (quote_id y action)
+
 if (!$quote_id || !$action) {
     $error_message = 'Datos incompletos para procesar la reserva.';
 }
@@ -16,7 +14,7 @@ if (!$quote_id || !$action) {
 $new_status = '';
 $message = '';
 
-// 3. Determinar el nuevo estado
+
 if (!$error_message) {
     if ($action === 'approve') {
         $new_status = 'Aprobado';
@@ -29,7 +27,7 @@ if (!$error_message) {
     }
 }
 
-// 4. Actualizar el estado en la base de datos
+
 if (!$error_message) {
     try {
         $sql = "UPDATE public.cotization SET status = :new_status WHERE quote_id = :quote_id";
@@ -40,7 +38,7 @@ if (!$error_message) {
         
         $stmt->execute();
         
-        // 5. Redirigir de vuelta a la página del gerente con un mensaje de éxito
+      
         header('Location: approve_reservations.php?success=' . urlencode($message));
         exit;
         
@@ -49,7 +47,7 @@ if (!$error_message) {
     }
 }
 
-// Si hay un error, redirigir con el mensaje de error
+
 if ($error_message) {
     header('Location: approve_reservations.php?error=' . urlencode($error_message));
 }
