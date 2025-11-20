@@ -2,12 +2,11 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$host = "localhost";
+$host = "db.alwfdfubiefrgsgwkylr.supabase.co";
 $port = "5432";
-$dbname = "vanguardmotors";
+$dbname = "VM";
 $user = "postgres";
-$password = "102938";
-
+$password = "pg584sql";
 try {
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
     $conn = new PDO($dsn, $user, $password, [
