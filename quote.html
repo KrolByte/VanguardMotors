@@ -199,12 +199,10 @@
     </div>
     <!-- Quote End-->
 
-    <!-- Related Vehicle Start -->
     <!-- Related Vehicles Section -->
-<div class="container-fluid pb-5">
-    <div class="container pb-5">
-        <h2 class="mb-4">Related Vehicles</h2>
-        <div id="relatedVehiclesContainer">
+    <div class="container-fluid pb-5">
+        <div class="container pb-5">
+            <h2 class="mb-4 text-uppercase">Related Vehicles</h2>
             <!-- Mensaje de carga -->
             <div id="loadingRelated" class="text-center py-5">
                 <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
@@ -215,12 +213,73 @@
                 <i class="fa fa-info-circle mr-2"></i>No related vehicles found at this time.
             </div>
             <!-- Carrusel de vehículos -->
-            <div class="owl-carousel related-carousel position-relative" id="relatedCarousel" style="padding: 0 30px; display:none;">
+            <div class="owl-carousel related-carousel" id="relatedCarousel" style="display:none;">
                 <!-- Los vehículos se cargarán dinámicamente aquí -->
             </div>
         </div>
     </div>
-</div>
+    <style>
+    .vehicle-card {
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        margin: 10px;
+    }
+
+    .vehicle-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .vehicle-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .vehicle-card .card-body {
+        padding: 20px;
+    }
+
+    .related-carousel .owl-nav {
+        margin-top: 20px;
+    }
+
+    .related-carousel .owl-nav button {
+        width: 50px;
+        height: 50px;
+        background: var(--primary) !important;
+        color: #fff !important;
+        border-radius: 50%;
+        font-size: 22px;
+        line-height: 50px;
+        margin: 0 5px;
+    }
+
+    .related-carousel .owl-nav button:hover {
+        background: var(--dark) !important;
+    }
+
+    .related-carousel .owl-dots {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .related-carousel .owl-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        background: #ddd;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
+
+    .related-carousel .owl-dot.active {
+        background: var(--primary);
+    }
+    </style>
     <!-- Related Vehicle End -->
 
     <!-- Vendor Start -->
@@ -347,8 +406,6 @@
     <!-- Quote Form Handler -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -394,8 +451,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('taxes').value = taxes;
                     document.getElementById('total_estimated').value = totalEstimated;
                     document.getElementById('valid_until').value = validUntil.toISOString().split('T')[0];
-
+                    
+                    // ✅ CARGAR VEHÍCULOS RELACIONADOS
                     loadRelatedVehicles(vehicleId);
+                    
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -420,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }).then(() => window.location.href = 'car.html');
     }
 
-    // ✅ MANEJO DEL ENVÍO DEL FORMULARIO
+    // MANEJO DEL ENVÍO DEL FORMULARIO
     document.getElementById('quoteForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -439,7 +498,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // ✅ ALERTA BONITA CON SWEETALERT2
                 Swal.fire({
                     icon: 'success',
                     title: '¡Quote Saved Successfully!',
@@ -496,36 +554,61 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
 // =====================================================================
-// CARGAR VEHÍCULOS RELACIONADOS
+// FUNCIONES PARA VEHÍCULOS RELACIONADOS
 // =====================================================================
 
 function loadRelatedVehicles(vehicleId) {
+    console.log('Loading related vehicles for vehicle ID:', vehicleId);
+    
     fetch(`backend-scripts/get_related_vehicles.php?vehicle_id=${vehicleId}`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById('loadingRelated').style.display = 'none';
+            console.log('📦 Respuesta completa del servidor:', data);
+            
+            // ✅ DEBUG: Ver cada vehículo y su imagen
+            if (data.success && data.related_vehicles) {
+                console.log('🚗 Total de vehículos relacionados:', data.related_vehicles.length);
+                data.related_vehicles.forEach((v, index) => {
+                    console.log(`
+                        Vehículo ${index + 1}:
+                        - ID: ${v.vehicle_id}
+                        - Marca/Modelo: ${v.brand} ${v.model}
+                        - Imagen: ${v.image}
+                        - Imagen existe: ${v.image !== 'img/car-placeholder.png' ? '✅' : '❌'}
+                    `);
+                });
+            }
             
             if (data.success && data.related_vehicles && data.related_vehicles.length > 0) {
                 const carousel = document.getElementById('relatedCarousel');
-                carousel.innerHTML = ''; // Limpiar contenido previo
+                carousel.innerHTML = ''; // Limpiar
                 
-                // Crear cards de vehículos
+                // Crear cards
                 data.related_vehicles.forEach(vehicle => {
                     const vehicleCard = createVehicleCard(vehicle);
                     carousel.innerHTML += vehicleCard;
                 });
                 
-                // Mostrar carrusel
+                // Mostrar y activar carrusel
                 carousel.style.display = 'block';
+                
+                // Destruir carrusel anterior si existe
+                if ($('.related-carousel').data('owl.carousel')) {
+                    $('.related-carousel').trigger('destroy.owl.carousel');
+                    $('.related-carousel').removeClass('owl-loaded');
+                }
                 
                 // Inicializar Owl Carousel
                 $('.related-carousel').owlCarousel({
                     autoplay: true,
-                    smartSpeed: 1500,
+                    autoplayTimeout: 5000,
+                    autoplayHoverPause: true,
+                    smartSpeed: 1000,
                     margin: 30,
                     dots: true,
-                    loop: true,
+                    loop: data.related_vehicles.length > 1,
                     nav: true,
                     navText: [
                         '<i class="fa fa-angle-left" aria-hidden="true"></i>',
@@ -533,14 +616,17 @@ function loadRelatedVehicles(vehicleId) {
                     ],
                     responsive: {
                         0: { items: 1 },
-                        576: { items: 2 },
+                        576: { items: 1 },
                         768: { items: 2 },
                         992: { items: 3 }
                     }
                 });
                 
+                console.log('Carousel initialized with', data.related_vehicles.length, 'vehicles');
+                
             } else {
                 document.getElementById('noRelatedVehicles').style.display = 'block';
+                console.log('No related vehicles found');
             }
         })
         .catch(error => {
@@ -550,58 +636,54 @@ function loadRelatedVehicles(vehicleId) {
         });
 }
 
-// Función para crear la card de cada vehículo
 function createVehicleCard(vehicle) {
     const availabilityMap = {
-        'available': { text: 'Available', class: 'text-success' },
-        'reserved': { text: 'Reserved', class: 'text-warning' },
-        'sold': { text: 'Sold', class: 'text-danger' },
-        'unavailable': { text: 'Unavailable', class: 'text-secondary' }
+        'available': { text: 'Available', class: 'text-success', icon: 'check-circle' },
+        'reserved': { text: 'Reserved', class: 'text-warning', icon: 'clock' },
+        'sold': { text: 'Sold', class: 'text-danger', icon: 'times-circle' },
+        'unavailable': { text: 'Unavailable', class: 'text-secondary', icon: 'ban' }
     };
     
-    const availability = availabilityMap[vehicle.availability] || { text: 'Unknown', class: 'text-muted' };
-    const formattedPrice = parseFloat(vehicle.price).toLocaleString('en-US', { 
-        style: 'currency', 
+    const availability = availabilityMap[vehicle.availability] || { 
+        text: 'Unknown', 
+        class: 'text-muted', 
+        icon: 'question-circle' 
+    };
+    
+    const formattedPrice = new Intl.NumberFormat('en-US', {
+        style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-    });
+    }).format(vehicle.price);
     
     return `
-        <div class="vehicle-card bg-light p-4">
-            <div class="text-center mb-3">
-                <img class="img-fluid" src="${vehicle.image}" alt="${vehicle.brand} ${vehicle.model}" 
-                     style="max-height: 200px; object-fit: cover; width: 100%;">
-            </div>
-            <h4 class="text-uppercase mb-2">${vehicle.brand} ${vehicle.model}</h4>
-            <h5 class="text-primary mb-3">${formattedPrice}</h5>
-            <div class="d-flex justify-content-center mb-4">
-                <div class="px-2 d-flex align-items-center">
-                    <i class="fa fa-calendar-alt text-primary mr-1"></i>
-                    <span>${vehicle.year}</span>
+        <div class="vehicle-card">
+            <img src="${vehicle.image}" alt="${vehicle.brand} ${vehicle.model}">
+            <div class="card-body text-center">
+                <h4 class="text-uppercase mb-2">${vehicle.brand} ${vehicle.model}</h4>
+                <h5 class="text-primary mb-3">${formattedPrice}</h5>
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="px-2">
+                        <i class="fa fa-calendar-alt text-primary mr-1"></i>
+                        <span class="small">${vehicle.year}</span>
+                    </div>
+                    <div class="px-2 border-left border-right">
+                        <i class="fa fa-paint-brush text-primary mr-1"></i>
+                        <span class="small">${vehicle.color}</span>
+                    </div>
+                    <div class="px-2">
+                        <i class="fa fa-${availability.icon} ${availability.class} mr-1"></i>
+                        <span class="small">${availability.text}</span>
+                    </div>
                 </div>
-                <div class="px-2 border-left border-right d-flex align-items-center">
-                    <i class="fa fa-paint-brush text-primary mr-1"></i>
-                    <span>${vehicle.color}</span>
-                </div>
-                <div class="px-2 d-flex align-items-center">
-                    <i class="fa fa-check-circle ${availability.class} mr-1"></i>
-                    <span>${availability.text}</span>
-                </div>
-            </div>
-            <div class="d-flex justify-content-center">
-                <a class="btn btn-primary px-4" href="detail.html?vehicle_id=${vehicle.vehicle_id}">
+                <a class="btn btn-primary px-4 py-2" href="detail.html?vehicle_id=${vehicle.vehicle_id}">
                     <i class="fa fa-eye mr-2"></i>See Details
                 </a>
             </div>
         </div>
     `;
 }
-
-// ✅ LLAMAR A LA FUNCIÓN DESPUÉS DE CARGAR LA COTIZACIÓN
-// Agregar esto al final del fetch de get_quote_data.php (donde ya tienes el código)
-// Justo después de calcular la cotización, agrega:
-loadRelatedVehicles(vehicleId);
 </script>
 </body>
 

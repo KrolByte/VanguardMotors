@@ -50,23 +50,27 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         
         $stmt_image = $pdo->prepare($sql_image);
         $stmt_image->execute([$vehicle_id]);
-        $main_image = $stmt_image->fetchColumn();
+        $main_image_row = $stmt_image->fetch(PDO::FETCH_ASSOC);
+        $main_image = $main_image_row ? $main_image_row['image_url'] : null;
         
         // Si no hay imagen principal, obtener la primera disponible
         if (!$main_image) {
-            $sql_any_image = "SELECT image_url FROM vehicle_image WHERE vehicle_id = ? LIMIT 1";
+            $sql_any_image = "SELECT image_url FROM vehicle_image WHERE vehicle_id = ? ORDER BY image_id LIMIT 1";
             $stmt_any = $pdo->prepare($sql_any_image);
             $stmt_any->execute([$vehicle_id]);
-            $main_image = $stmt_any->fetchColumn();
+            $any_image_row = $stmt_any->fetch(PDO::FETCH_ASSOC);
+            $main_image = $any_image_row ? $any_image_row['image_url'] : null;
         }
 
+        // ✅ NORMALIZAR RUTA DE IMAGEN (maneja TODOS los formatos)
+        $image_url = normalizeImageUrl($main_image);
+
         // ==========================================================
-        // 3. OBTENER DATOS DEL USUARIO (simulación o sesión real)
+        // 3. OBTENER DATOS DEL USUARIO
         // ==========================================================
         $person = null;
-        $test_person_id = 1; // ID de prueba (cambiar según tu sistema)
+        $test_person_id = 1;
         
-        // Intentar obtener de sesión
         $person_id = $_SESSION['person_id'] ?? $test_person_id;
         
         if ($person_id) {
@@ -81,7 +85,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $person = $stmt_person->fetch(PDO::FETCH_ASSOC);
         }
         
-        // Si no hay persona, devolver estructura vacía
         if (!$person) {
             $person = [
                 'identification_number' => '',
@@ -113,10 +116,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 'price' => $vehicle['price'],
                 'description' => $vehicle['description'] ?? 'High-performance vehicle with excellent features.',
                 'availability' => $availabilityMap[$vehicle['availability']] ?? ucfirst($vehicle['availability']),
-                'image' => $main_image ?? 'img/car-placeholder.png'
+                'image' => $image_url
             ],
             'person' => $person,
-            'taxPercentage' => 19 // IVA en Colombia
+            'taxPercentage' => 19
         ]);
 
     } catch (PDOException $e) {
@@ -143,5 +146,34 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         'success' => false,
         'message' => 'Method not allowed'
     ]);
+}
+
+// =====================================================
+// FUNCIÓN PARA NORMALIZAR URLs DE IMÁGENES
+// =====================================================
+function normalizeImageUrl($image_url) {
+    if (!$image_url) {
+        return 'img/car-placeholder.png';
+    }
+    
+    // Si es una URL completa (http/https), devolverla tal cual
+    if (preg_match('/^https?:\/\//i', $image_url)) {
+        return $image_url;
+    }
+    
+    // Quitar el / inicial si existe
+    $cleaned = ltrim($image_url, '/');
+    
+    // Si ya tiene 'img/' al inicio, devolverla tal cual
+    if (strpos($cleaned, 'img/') === 0) {
+        return $cleaned;
+    }
+    
+    // Si no tiene 'img/' y no es una URL, agregarlo
+    if (!empty($cleaned)) {
+        return 'img/' . $cleaned;
+    }
+    
+    return 'img/car-placeholder.png';
 }
 ?>

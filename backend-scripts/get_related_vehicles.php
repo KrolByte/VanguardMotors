@@ -43,12 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         // ==========================================================
         // 2. BUSCAR VEHÍCULOS SIMILARES
         // ==========================================================
-        // Criterios:
-        // - Misma marca O mismo año O precio similar
-        // - Excluir el vehículo actual
-        // - Solo vehículos disponibles
-        // - Ordenar por relevancia (primero misma marca, luego mismo año, luego precio)
-        
         $sql_related = "
             SELECT DISTINCT v.vehicle_id, v.brand, v.model, v.year, v.color, v.price, v.availability,
                    (CASE 
@@ -77,15 +71,15 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
         $stmt_related = $pdo->prepare($sql_related);
         $stmt_related->execute([
-            $base_vehicle['brand'], // Para score
-            $base_vehicle['year'],   // Para score
-            $min_price,              // Para score
-            $max_price,              // Para score
-            $vehicle_id,             // Excluir actual
-            $base_vehicle['brand'],  // Filtro marca
-            $base_vehicle['year'],   // Filtro año
-            $min_price,              // Filtro precio min
-            $max_price               // Filtro precio max
+            $base_vehicle['brand'],
+            $base_vehicle['year'],
+            $min_price,
+            $max_price,
+            $vehicle_id,
+            $base_vehicle['brand'],
+            $base_vehicle['year'],
+            $min_price,
+            $max_price
         ]);
 
         $related_vehicles = $stmt_related->fetchAll(PDO::FETCH_ASSOC);
@@ -102,16 +96,41 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                          LIMIT 1";
             $stmt_image = $pdo->prepare($sql_image);
             $stmt_image->execute([$vehicle['vehicle_id']]);
-            $main_image = $stmt_image->fetchColumn();
+            $image_row = $stmt_image->fetch(PDO::FETCH_ASSOC);
+            $main_image = $image_row ? $image_row['image_url'] : null;
 
             // Si no hay imagen principal, obtener cualquiera
             if (!$main_image) {
-                $sql_any_image = "SELECT image_url FROM vehicle_image WHERE vehicle_id = ? LIMIT 1";
+                $sql_any_image = "SELECT image_url FROM vehicle_image WHERE vehicle_id = ? ORDER BY image_id LIMIT 1";
                 $stmt_any = $pdo->prepare($sql_any_image);
                 $stmt_any->execute([$vehicle['vehicle_id']]);
-                $main_image = $stmt_any->fetchColumn();
+                $any_image_row = $stmt_any->fetch(PDO::FETCH_ASSOC);
+                $main_image = $any_image_row ? $any_image_row['image_url'] : null;
             }
 
+            // ✅ LIMPIAR RUTA DE IMAGEN (quitar / inicial)
+            $image_url = 'img/car-placeholder.png'; // Default
+            if ($main_image) {
+                // Quitar el / inicial si existe
+                $cleaned_image = ltrim($main_image, '/');
+                $image_url = $cleaned_image;
+            }
+
+            error_log("=== VEHICLE ID: {$vehicle['vehicle_id']} ===");
+                error_log("Brand/Model: {$vehicle['brand']} {$vehicle['model']}");
+                error_log("Raw image from DB: " . ($main_image ?? 'NULL'));
+                
+                $image_url = 'img/car-placeholder.png';
+                if ($main_image) {
+                    $cleaned_image = ltrim($main_image, '/');
+                    $image_url = $cleaned_image;
+                    error_log("Cleaned image: {$cleaned_image}");
+                } else {
+                    error_log("No image found, using placeholder");
+                }
+                error_log("Final image URL: {$image_url}");
+                error_log("==============================");
+    
             $vehicles_with_images[] = [
                 'vehicle_id' => $vehicle['vehicle_id'],
                 'brand' => $vehicle['brand'],
@@ -120,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 'color' => $vehicle['color'],
                 'price' => $vehicle['price'],
                 'availability' => $vehicle['availability'],
-                'image' => $main_image ?? 'img/car-placeholder.png',
+                'image' => $image_url,
                 'relevance_score' => $vehicle['relevance_score']
             ];
         }
@@ -147,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         
         echo json_encode([
             'success' => false,
-            'message' => 'Database error'
+            'message' => 'Database error: ' . $e->getMessage()
         ]);
         
     } catch (Exception $e) {
