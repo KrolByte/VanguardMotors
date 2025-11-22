@@ -40,6 +40,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             ]));
         }
 
+        // ✅ VERIFICAR DISPONIBILIDAD
+        $is_available = ($vehicle['availability'] === 'available');
+
         // ==========================================================
         // 2. OBTENER IMAGEN PRINCIPAL DEL VEHÍCULO
         // ==========================================================
@@ -62,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $main_image = $any_image_row ? $any_image_row['image_url'] : null;
         }
 
-        // ✅ NORMALIZAR RUTA DE IMAGEN (maneja TODOS los formatos)
+        // Normalizar ruta de imagen
         $image_url = normalizeImageUrl($main_image);
 
         // ==========================================================
@@ -116,7 +119,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 'price' => $vehicle['price'],
                 'description' => $vehicle['description'] ?? 'High-performance vehicle with excellent features.',
                 'availability' => $availabilityMap[$vehicle['availability']] ?? ucfirst($vehicle['availability']),
-                'image' => $image_url
+                'availability_status' => $vehicle['availability'], // ✅ Estado real
+                'image' => $image_url,
+                'is_available' => $is_available // ✅ Bandera de disponibilidad
             ],
             'person' => $person,
             'taxPercentage' => 19

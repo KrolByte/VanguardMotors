@@ -95,11 +95,11 @@
     <div class="container-fluid page-header">
         <h1 class="display-3 text-uppercase text-white mb-3">Vehicle Quote</h1>
         <div class="d-inline-flex text-white">
-            <h6 class="text-uppercase m-0"><a class="text-white" href="">Homepage</a></h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="index.html">Homepage</a></h6>
             <h6 class="text-body m-0 px-3">/</h6>
-            <h6 class="text-uppercase m-0"><a class="text-white" href="">Vehicle Catalog</a></h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="car.html">Vehicle Catalog</a></h6>
             <h6 class="text-body m-0 px-3">/</h6>
-            <h6 class="text-uppercase m-0"><a class="text-white" href="">Vehicle Details</a></h6>
+            <h6 class="text-uppercase m-0"><a class="text-white" href="detail.html">Vehicle Details</a></h6>
             <h6 class="text-body m-0 px-3">/</h6>
             <h6 class="text-uppercase text-body m-0">Vehicle Quote</h6>
         </div>
@@ -410,10 +410,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const vehicleId = urlParams.get('vehicle_id');
-
     if (vehicleId) {
         document.getElementById('vehicle_id').value = vehicleId;
-
         fetch(`backend-scripts/get_quote_data.php?vehicle_id=${vehicleId}`)
             .then(response => response.json())
             .then(data => {
@@ -429,7 +427,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('vehicleAvailability').textContent = data.vehicle.availability;
                     document.getElementById('displayPrice').textContent = 
                         parseFloat(data.vehicle.price).toLocaleString('en-US', {minimumFractionDigits: 2});
-
                     // Llenar datos del cliente
                     if (data.person) {
                         document.getElementById('full_name').value = data.person.full_name || '';
@@ -438,7 +435,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('identification_number').value = 
                             data.person.identification_number || '';
                     }
-
                     // Calcular cotización
                     const basePrice = parseFloat(data.vehicle.price);
                     const taxPercentage = data.taxPercentage || 19;
@@ -446,15 +442,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     const totalEstimated = (basePrice + parseFloat(taxes)).toFixed(2);
                     const validUntil = new Date();
                     validUntil.setDate(validUntil.getDate() + 30);
-
                     document.getElementById('taxPercentage').textContent = taxPercentage;
                     document.getElementById('taxes').value = taxes;
                     document.getElementById('total_estimated').value = totalEstimated;
                     document.getElementById('valid_until').value = validUntil.toISOString().split('T')[0];
                     
+                    // ✅✅✅ AQUÍ VA LA VALIDACIÓN DE DISPONIBILIDAD ✅✅✅
+                    console.log('🔍 Verificando disponibilidad:', data.vehicle.is_available);
+                    console.log('📊 Estado del vehículo:', data.vehicle.availability_status);
+                    if (!data.vehicle.is_available) {
+                        const submitBtn = document.querySelector('#quoteForm button[type="submit"]');
+                        const availabilityStatus = data.vehicle.availability_status;
+                        const statusMessages = {
+                            'sold': '🚫 This vehicle has been SOLD',
+                            'reserved': '⚠️ This vehicle is RESERVED',
+                            'unavailable': '❌ This vehicle is UNAVAILABLE'
+                        };
+                        const statusDescriptions = {
+                            'sold': 'This vehicle has been sold and is no longer available for quotes or reservations.',
+                            'reserved': 'This vehicle is currently reserved by another customer.',
+                            'unavailable': 'This vehicle is temporarily unavailable.'
+                        };
+                        const message = statusMessages[availabilityStatus] || '❌ NOT AVAILABLE';
+                        const description = statusDescriptions[availabilityStatus] || 'This vehicle is not available.';
+                        // Deshabilitar botón y cambiar apariencia
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `<i class="fa fa-ban mr-2"></i>${message}`;
+                        submitBtn.classList.remove('btn-primary');
+                        submitBtn.classList.add('btn-secondary');
+                        // Crear alerta de advertencia
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-warning mt-4';
+                        alertDiv.innerHTML = `
+                            <h5 class="mb-3">
+                                <i class="fa fa-exclamation-triangle mr-2"></i>Vehicle Not Available
+                            </h5>
+                            <p class="mb-0">
+                                ${description} You can view the quote information but cannot save it or make a reservation at this time.
+                            </p>
+                        `;
+                        // Insertar alerta ANTES del botón
+                        submitBtn.parentNode.insertBefore(alertDiv, submitBtn);
+                        console.log('✅ Botón deshabilitado y alerta mostrada');
+                    } else {
+                        console.log('✅ Vehículo disponible - botón activo');
+                    }
+                    // ✅✅✅ FIN DE LA VALIDACIÓN ✅✅
+
                     // ✅ CARGAR VEHÍCULOS RELACIONADOS
                     loadRelatedVehicles(vehicleId);
-                    
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -482,15 +518,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // MANEJO DEL ENVÍO DEL FORMULARIO
     document.getElementById('quoteForm').addEventListener('submit', function(e) {
         e.preventDefault();
-
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Processing...';
-
         const formData = new FormData(this);
-        
         fetch('backend-scripts/save_quote.php', {
             method: 'POST',
             body: formData
@@ -565,6 +597,9 @@ function loadRelatedVehicles(vehicleId) {
     fetch(`backend-scripts/get_related_vehicles.php?vehicle_id=${vehicleId}`)
         .then(response => response.json())
         .then(data => {
+            // ✅ OCULTAR LOADING SIEMPRE AL INICIO
+            document.getElementById('loadingRelated').style.display = 'none';
+            
             console.log('📦 Respuesta completa del servidor:', data);
             
             // ✅ DEBUG: Ver cada vehículo y su imagen
@@ -631,7 +666,7 @@ function loadRelatedVehicles(vehicleId) {
         })
         .catch(error => {
             console.error('Error loading related vehicles:', error);
-            document.getElementById('loadingRelated').style.display = 'none';
+            document.getElementById('loadingRelated').style.display = 'none'; // ✅ También aquí
             document.getElementById('noRelatedVehicles').style.display = 'block';
         });
 }
@@ -659,7 +694,10 @@ function createVehicleCard(vehicle) {
     
     return `
         <div class="vehicle-card">
-            <img src="${vehicle.image}" alt="${vehicle.brand} ${vehicle.model}">
+            <img src="${vehicle.image}" 
+                 alt="${vehicle.brand} ${vehicle.model}"
+                 onerror="this.onerror=null; this.src='img/car-placeholder.png';"
+                 style="width: 100%; height: 200px; object-fit: cover;">
             <div class="card-body text-center">
                 <h4 class="text-uppercase mb-2">${vehicle.brand} ${vehicle.model}</h4>
                 <h5 class="text-primary mb-3">${formattedPrice}</h5>
@@ -686,5 +724,4 @@ function createVehicleCard(vehicle) {
 }
 </script>
 </body>
-
 </html>
