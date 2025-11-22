@@ -47,8 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $pdo = getDbConnection();
         $pdo->beginTransaction();
 
-        // Verificar vehículo
-        $sql_vehicle = "SELECT price, brand, model FROM vehicle WHERE vehicle_id = ?";
+        // Verificar vehículo y disponibilidad
+        $sql_vehicle = "SELECT price, brand, model, availability FROM vehicle WHERE vehicle_id = ?";
         $stmt_vehicle = $pdo->prepare($sql_vehicle);
         $stmt_vehicle->execute([$vehicle_id]);
         $vehicle = $stmt_vehicle->fetch(PDO::FETCH_ASSOC);
@@ -57,6 +57,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $pdo->rollBack();
             http_response_code(404);
             die(json_encode(['success' => false, 'message' => 'Vehicle not found.']));
+        }
+
+        // ✅ VALIDAR DISPONIBILIDAD
+        if ($vehicle['availability'] !== 'available') {
+            $pdo->rollBack();
+            http_response_code(400);
+            
+            $status_messages = [
+                'sold' => 'This vehicle has been sold and is no longer available for quotes or reservations.',
+                'reserved' => 'This vehicle is currently reserved by another customer.',
+                'unavailable' => 'This vehicle is temporarily unavailable.'
+            ];
+            
+            $message = $status_messages[$vehicle['availability']] ?? 'This vehicle is not available.';
+            
+            die(json_encode([
+                'success' => false,
+                'message' => $message,
+                'vehicle_status' => $vehicle['availability']
+            ]));
         }
 
         // Verificar persona y obtener email
@@ -88,20 +108,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // ==========================================================
         // 5. BUSCAR ASESOR DISPONIBLE Y HORARIO
         // ==========================================================
-        
-        // Fecha sugerida: 7 días después de la cotización
         $suggested_date = date('Y-m-d', strtotime('+7 days'));
-        
-        // Horarios disponibles para búsqueda (9 AM - 5 PM)
-        $available_hours = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', 
+        $available_hours = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', 
                            '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'];
         
-        // Obtener todos los asesores activos
         $sql_advisors = "SELECT e.employed_id 
                         FROM employed e 
                         JOIN users u ON e.user_id = u.user_id 
                         WHERE u.role = 'advisor' 
-                        ORDER BY RANDOM()"; // Orden aleatorio
+                        ORDER BY RANDOM()";
         
         $stmt_advisors = $pdo->prepare($sql_advisors);
         $stmt_advisors->execute();
@@ -113,23 +128,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             die(json_encode(['success' => false, 'message' => 'No advisors available.']));
         }
         
-        // Buscar slot disponible
         $found_slot = false;
         $assigned_advisor = null;
         $assigned_date = null;
         $assigned_time = null;
         
-        // Intentar en la fecha sugerida primero, luego días siguientes
         for ($day_offset = 0; $day_offset <= 14 && !$found_slot; $day_offset++) {
             $check_date = date('Y-m-d', strtotime("+{$day_offset} days", strtotime($suggested_date)));
-            
-            // Saltar fines de semana
             $day_of_week = date('w', strtotime($check_date));
             if ($day_of_week == 0 || $day_of_week == 6) continue;
             
             foreach ($available_hours as $hour) {
                 foreach ($advisors as $advisor_id) {
-                    // Verificar si el asesor está libre en ese horario
                     $sql_check = "SELECT COUNT(*) FROM transaction 
                                  WHERE advisor_id = ? 
                                  AND appointment_date = ? 
@@ -140,26 +150,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt_check->execute([$advisor_id, $check_date, $hour]);
                     
                     if ($stmt_check->fetchColumn() == 0) {
-                        // ¡Slot encontrado!
                         $assigned_advisor = $advisor_id;
                         $assigned_date = $check_date;
                         $assigned_time = $hour;
                         $found_slot = true;
-                        break 3; // Salir de los 3 loops
+                        break 3;
                     }
                 }
             }
         }
         
         if (!$found_slot) {
-            // Si no se encuentra slot, asignar al primer asesor con fecha +7 días
             $assigned_advisor = $advisors[0];
             $assigned_date = $suggested_date;
             $assigned_time = '10:00';
         }
 
         // ==========================================================
-        // 6. CREAR TRANSACCIÓN DE CITA (buys = compra/revisión cotización)
+        // 6. CREAR TRANSACCIÓN DE CITA
         // ==========================================================
         $sql_transaction = "INSERT INTO transaction 
                            (type_transaction, status, creation_date, appointment_date, 
@@ -179,18 +187,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         $transaction_id = $stmt_transaction->fetchColumn();
 
-        // Obtener nombre del asesor
         $sql_advisor_name = "SELECT full_name FROM employed WHERE employed_id = ?";
         $stmt_advisor_name = $pdo->prepare($sql_advisor_name);
         $stmt_advisor_name->execute([$assigned_advisor]);
         $advisor_name = $stmt_advisor_name->fetchColumn();
 
-        // ==========================================================
-        // 7. COMMIT Y PREPARAR RESPUESTA
-        // ==========================================================
         $pdo->commit();
         
-        // Formatear fecha para mostrar
         $formatted_date = date('F j, Y', strtotime($assigned_date));
         $formatted_time = date('g:i A', strtotime($assigned_time));
 
@@ -216,33 +219,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($pdo) && $pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        
         error_log("DB Error in save_quote: " . $e->getMessage());
         http_response_code(500);
-        
-        echo json_encode([
-            'success' => false,
-            'message' => 'Database error while saving quote.'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Database error while saving quote.']);
         
     } catch (Exception $e) {
         if (isset($pdo) && $pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        
         error_log("Error in save_quote: " . $e->getMessage());
         http_response_code(500);
-        
-        echo json_encode([
-            'success' => false,
-            'message' => 'Error saving quote. Please try again.'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Error saving quote. Please try again.']);
     }
 } else {
     http_response_code(405);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Method not allowed'
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
 }
 ?>
