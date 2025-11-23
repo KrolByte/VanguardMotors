@@ -82,7 +82,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 'available' => 'Available',
                 'sold' => 'Sold',
                 'reserved' => 'Reserved',
-                'maintenance' => 'In Maintenance'
+                'unavailable' => 'Unavailable',
+                'maintenance' => 'maintenance' // Mapear maintenance antiguo a unavailable
             ];
 
             $formatted_vehicles[] = [

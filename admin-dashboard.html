@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Admin Dashboard - Vanguard Motors</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+    
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rubik&display=swap" rel="stylesheet"> 
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #1c1c1c 0%, #2d2d2d 100%);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .stats-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+        .vehicle-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .vehicle-img-thumb {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .badge-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .modal-xl {
+            max-width: 90%;
+        }
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 120px;
+            height: 100px;
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+        .image-preview-item .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        .image-preview-item .main-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h2 class="text-white mb-0">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        Administrative Panel
+                    </h2>
+                    <small class="text-white-50">Vanguard Motors</small>
+                </div>
+                <div class="col-md-6 text-right">
+                    <div class="d-inline-flex align-items-center bg-dark px-4 py-2 rounded">
+                        <i class="fas fa-user-tie text-primary mr-2"></i>
+                        <span class="text-white" id="advisorName">Loading...</span>
+                        <span class="badge badge-success ml-3">Advisor</span>
+                    </div>
+                    <button class="btn btn-outline-danger ml-3" onclick="logout()">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                    <a href="index.html" class="btn btn-outline-light ml-2">
+                        <i class="fas fa-home mr-1"></i> Back to Site
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <i class="fas fa-car stats-icon text-primary"></i>
+                    <h3 class="mt-2 mb-0" id="totalVehicles">0</h3>
+                    <p class="text-muted mb-0">Total Vehicles</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <i class="fas fa-check-circle stats-icon text-success"></i>
+                    <h3 class="mt-2 mb-0" id="availableVehicles">0</h3>
+                    <p class="text-muted mb-0">Available</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <i class="fas fa-calendar-check stats-icon text-warning"></i>
+                    <h3 class="mt-2 mb-0" id="reservedVehicles">0</h3>
+                    <p class="text-muted mb-0">Reserved</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <i class="fas fa-ban stats-icon text-danger"></i>
+                    <h3 class="mt-2 mb-0" id="unavailableVehicles">0</h3>
+                    <p class="text-muted mb-0">Unavailable</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicles Table -->
+    <div class="container mb-5">
+        <div class="vehicle-table">
+            <div class="p-4 bg-secondary">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-list mr-2"></i>Vehicle Inventory
+                        </h4>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <button class="btn btn-primary" onclick="openAddVehicleModal()">
+                            <i class="fas fa-plus mr-2"></i>Add New Vehicle
+                        </button>
+                        <button class="btn btn-outline-light ml-2" onclick="loadVehicles()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Year</th>
+                            <th>Color</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehiclesTableBody">
+                        <tr>
+                            <td colspan="9" class="text-center py-4">
+                                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                                <p class="mt-2 text-muted">Loading vehicles...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Vehicle Modal -->
+    <div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-car mr-2"></i>Add New Vehicle
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <form id="addVehicleForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-info-circle mr-2"></i>Vehicle Information
+                                </h6>
+                                
+                                <div class="form-group">
+                                    <label>Brand <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="brand" required placeholder="e.g., Toyota, Honda, BMW">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Model <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="model" required placeholder="e.g., Corolla, Civic, X5">
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Year <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" name="year" required min="1900" max="2030" placeholder="2024">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Color <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="color" required placeholder="e.g., Black, White, Red">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Price (COP) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" name="price" required min="0" step="1000" placeholder="50000000">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Availability Status <span class="text-danger">*</span></label>
+                                    <select class="form-control" name="availability" required>
+                                        <option value="available" selected>Available</option>
+                                        <option value="reserved">Reserved</option>
+                                        <option value="sold">Sold</option>
+                                        <option value="unavailable">Unavailable</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-align-left mr-2"></i>Description
+                                </h6>
+                                
+                                <div class="form-group">
+                                    <label>Vehicle Description</label>
+                                    <textarea class="form-control" name="description" rows="5" placeholder="Enter detailed description of the vehicle..."></textarea>
+                                </div>
+                                
+                                <h6 class="text-primary mb-3 mt-4">
+                                    <i class="fas fa-images mr-2"></i>Vehicle Images
+                                </h6>
+                                
+                                <div class="form-group">
+                                    <label>Upload Images (Max 5) <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control-file" id="vehicleImages" accept="image/*" multiple required>
+                                    <small class="form-text text-muted">
+                                        Select up to 5 images. First image will be the main image.
+                                    </small>
+                                </div>
+                                
+                                <div id="imagePreviewContainer" class="image-preview-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-2"></i>Save Vehicle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Vehicle Modal -->
+    <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit mr-2"></i>Edit Vehicle
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <form id="editVehicleForm">
+                    <input type="hidden" name="vehicle_id" id="editVehicleId">
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <h6 class="text-warning mb-3">
+                                    <i class="fas fa-info-circle mr-2"></i>Vehicle Information
+                                </h6>
+                                
+                                <div class="form-group">
+                                    <label>Brand <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="brand" id="editBrand" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Model <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="model" id="editModel" required>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Year <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" name="year" id="editYear" required min="1900" max="2030">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Color <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="color" id="editColor" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Price (COP) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" name="price" id="editPrice" required min="0" step="1000">
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <h6 class="text-warning mb-3">
+                                    <i class="fas fa-check-circle mr-2"></i>Availability
+                                </h6>
+                                
+                                <div class="form-group">
+                                    <label>Availability Status <span class="text-danger">*</span></label>
+                                    <select class="form-control" name="availability" id="editAvailability" required>
+                                        <option value="available">Available</option>
+                                        <option value="reserved">Reserved</option>
+                                        <option value="sold">Sold</option>
+                                        <option value="unavailable">Unavailable</option>
+                                    </select>
+                                </div>
+                                
+                                <h6 class="text-warning mb-3 mt-4">
+                                    <i class="fas fa-align-left mr-2"></i>Description
+                                </h6>
+                                
+                                <div class="form-group">
+                                    <label>Vehicle Description</label>
+                                    <textarea class="form-control" name="description" id="editDescription" rows="8"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save mr-2"></i>Update Vehicle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid bg-secondary py-4 px-sm-3 px-md-5 mt-5">
+        <div class="row pt-4">
+            <div class="col-12 text-center">
+                <p class="mb-2 text-body">&copy; <a href="#">VanguardMotors</a>. All Rights Reserved.</p>
+                <p class="m-0 text-body">Designed by K2ES SD</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        /* ===============================================================
+           CONFIGURACIÓN Y VARIABLES GLOBALES
+        ================================================================ */
+        const ADVISOR_ID = 4; // ⚠️ CAMBIAR ESTO: Usar employed_id de un asesor válido de tu BD
+        const API_URLS = {
+            vehicles: 'backend-scripts/get_vehicles.php',
+            addVehicle: 'backend-scripts/add_vehicle.php',
+            updateVehicle: 'backend-scripts/update_vehicle.php',
+            advisorData: 'backend-scripts/get_advisor_data.php'
+        };
+
+        let selectedFiles = [];
+
+        /* ===============================================================
+           INICIALIZACIÓN
+        ================================================================ */
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAdvisorData();
+            loadVehicles();
+            setupImageUpload();
+            setupFormSubmission();
+            setupEditFormSubmission();
+        });
+
+        /* ===============================================================
+           CARGAR DATOS DEL ASESOR
+        ================================================================ */
+        function loadAdvisorData() {
+            // Cargar nombre real del asesor desde la BD
+            fetch(API_URLS.advisorData + '?advisor_id=' + ADVISOR_ID)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('advisorName').textContent = data.data.full_name;
+                    } else {
+                        document.getElementById('advisorName').textContent = 'Advisor #' + ADVISOR_ID;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading advisor data:', err);
+                    document.getElementById('advisorName').textContent = 'Advisor #' + ADVISOR_ID;
+                });
+        }
+
+        /* ===============================================================
+           CARGAR VEHÍCULOS
+        ================================================================ */
+        function loadVehicles() {
+            const tbody = document.getElementById('vehiclesTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                        <p class="mt-2 text-muted">Loading vehicles...</p>
+                    </td>
+                </tr>
+            `;
+
+            fetch(API_URLS.vehicles)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        renderVehiclesTable(data.data);
+                        updateStats(data.data);
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    <i class="fas fa-info-circle fa-2x text-muted"></i>
+                                    <p class="mt-2 text-muted">No vehicles found</p>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading vehicles:', err);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-danger">
+                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                <p class="mt-2">Error loading vehicles</p>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        /* ===============================================================
+           RENDERIZAR TABLA DE VEHÍCULOS
+        ================================================================ */
+        function renderVehiclesTable(vehicles) {
+            const tbody = document.getElementById('vehiclesTableBody');
+            tbody.innerHTML = '';
+
+            vehicles.forEach(v => {
+                const statusClass = {
+                    'available': 'success',
+                    'reserved': 'warning',
+                    'sold': 'secondary',
+                    'unavailable': 'danger'
+                }[v.availability_status] || 'secondary';
+
+                const row = `
+                    <tr>
+                        <td><strong>#${v.vehicle_id}</strong></td>
+                        <td>
+                            <img src="${v.primary_image}" class="vehicle-img-thumb" alt="${v.brand} ${v.model}">
+                        </td>
+                        <td>${v.brand}</td>
+                        <td>${v.model}</td>
+                        <td>${v.year}</td>
+                        <td>${v.color}</td>
+                        <td><strong>${new Intl.NumberFormat('es-CO').format(v.price)}</strong></td>
+                        <td>
+                            <span class="badge badge-${statusClass} badge-status">
+                                ${v.availability}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-warning mr-1" onclick="openEditVehicleModal(${v.vehicle_id})" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="detail.html?vehicle_id=${v.vehicle_id}" class="btn btn-sm btn-outline-primary" target="_blank" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        /* ===============================================================
+           ACTUALIZAR ESTADÍSTICAS
+        ================================================================ */
+        function updateStats(vehicles) {
+            const total = vehicles.length;
+            const available = vehicles.filter(v => v.availability_status === 'available').length;
+            const reserved = vehicles.filter(v => v.availability_status === 'reserved').length;
+            const unavailable = vehicles.filter(v => v.availability_status === 'unavailable').length;
+
+            document.getElementById('totalVehicles').textContent = total;
+            document.getElementById('availableVehicles').textContent = available;
+            document.getElementById('reservedVehicles').textContent = reserved;
+            document.getElementById('unavailableVehicles').textContent = unavailable;
+        }
+
+        /* ===============================================================
+           ABRIR MODAL DE AGREGAR VEHÍCULO
+        ================================================================ */
+        function openAddVehicleModal() {
+            $('#addVehicleModal').modal('show');
+            document.getElementById('addVehicleForm').reset();
+            selectedFiles = [];
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+        }
+
+        /* ===============================================================
+           CONFIGURAR SUBIDA DE IMÁGENES
+        ================================================================ */
+        function setupImageUpload() {
+            const fileInput = document.getElementById('vehicleImages');
+            
+            fileInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                
+                if (files.length > 5) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Too Many Images',
+                        text: 'Maximum 5 images allowed. Only first 5 will be used.',
+                    });
+                    selectedFiles = files.slice(0, 5);
+                } else {
+                    selectedFiles = files;
+                }
+                
+                displayImagePreviews();
+            });
+        }
+
+        /* ===============================================================
+           MOSTRAR PREVISUALIZACIONES DE IMÁGENES
+        ================================================================ */
+        function displayImagePreviews() {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'image-preview-item';
+                    
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${index + 1}">
+                        ${index === 0 ? '<span class="main-badge">MAIN</span>' : ''}
+                        <div class="remove-image" onclick="removeImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    `;
+                    
+                    container.appendChild(div);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /* ===============================================================
+           REMOVER IMAGEN
+        ================================================================ */
+        function removeImage(index) {
+            selectedFiles.splice(index, 1);
+            displayImagePreviews();
+            
+            // Actualizar el input file
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            document.getElementById('vehicleImages').files = dt.files;
+        }
+
+        /* ===============================================================
+           CONFIGURAR ENVÍO DEL FORMULARIO
+        ================================================================ */
+        function setupFormSubmission() {
+            document.getElementById('addVehicleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                if (selectedFiles.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Images Required',
+                        text: 'Please upload at least one image for the vehicle.',
+                    });
+                    return;
+                }
+
+                const formData = new FormData(this);
+                formData.append('advisor_id', ADVISOR_ID);
+                
+                // Agregar imágenes
+                selectedFiles.forEach((file, index) => {
+                    formData.append('images[]', file);
+                    formData.append('is_main[]', index === 0 ? '1' : '0');
+                });
+
+                // Mostrar loading
+                Swal.fire({
+                    title: 'Adding Vehicle...',
+                    html: 'Please wait while we save the vehicle data.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(API_URLS.addVehicle, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Vehicle Added!',
+                            text: 'The vehicle has been successfully added to the catalog.',
+                            confirmButtonColor: '#007bff'
+                        }).then(() => {
+                            $('#addVehicleModal').modal('hide');
+                            loadVehicles();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Could not add vehicle. Please try again.',
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Connection Error',
+                        text: 'Could not connect to server. Please check your connection.',
+                    });
+                });
+            });
+        }
+
+        /* ===============================================================
+           ABRIR MODAL DE EDITAR VEHÍCULO
+        ================================================================ */
+        function openEditVehicleModal(vehicleId) {
+            // Mostrar loading
+            Swal.fire({
+                title: 'Loading...',
+                html: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Obtener datos del vehículo
+            fetch(`backend-scripts/get_vehicle_detail.php?vehicle_id=${vehicleId}`)
+                .then(r => r.json())
+                .then(data => {
+                    Swal.close();
+                    
+                    if (data.success && data.data) {
+                        const v = data.data;
+                        
+                        // Llenar formulario
+                        document.getElementById('editVehicleId').value = v.vehicle_id;
+                        document.getElementById('editBrand').value = v.brand;
+                        document.getElementById('editModel').value = v.model;
+                        document.getElementById('editYear').value = v.year;
+                        document.getElementById('editColor').value = v.color;
+                        document.getElementById('editPrice').value = v.price;
+                        document.getElementById('editDescription').value = v.description || '';
+                        
+                        // Mapear availability correctamente
+                        const availabilityMap = {
+                            'Available': 'available',
+                            'Reserved': 'reserved',
+                            'Sold': 'sold',
+                            'Unavailable': 'unavailable',
+                            'In Maintenance': 'unavailable'
+                        };
+                        
+                        const availabilityValue = availabilityMap[v.availability] || v.availability.toLowerCase();
+                        document.getElementById('editAvailability').value = availabilityValue;
+                        
+                        // Mostrar modal
+                        $('#editVehicleModal').modal('show');
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Could not load vehicle data'
+                        });
+                    }
+                })
+                .catch(err => {
+                    Swal.close();
+                    console.error('Error loading vehicle:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Could not connect to server'
+                    });
+                });
+        }
+
+        /* ===============================================================
+           CONFIGURAR ENVÍO DEL FORMULARIO DE EDICIÓN
+        ================================================================ */
+        function setupEditFormSubmission() {
+            document.getElementById('editVehicleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                formData.append('advisor_id', ADVISOR_ID);
+
+                // Mostrar loading
+                Swal.fire({
+                    title: 'Updating Vehicle...',
+                    html: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch('backend-scripts/update_vehicle.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Vehicle Updated!',
+                            text: 'The vehicle has been successfully updated.',
+                            confirmButtonColor: '#007bff'
+                        }).then(() => {
+                            $('#editVehicleModal').modal('hide');
+                            loadVehicles();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Could not update vehicle'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Connection Error',
+                        text: 'Could not connect to server'
+                    });
+                });
+            });
+        }
+
+        /* ===============================================================
+           CERRAR SESIÓN
+        ================================================================ */
+        function logout() {
+            Swal.fire({
+                title: 'Logout',
+                text: 'Are you sure you want to logout?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, logout',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Cuando tengan el sistema de sesiones real, hacer:
+                    // fetch('backend-scripts/logout.php').then(() => {
+                    //     window.location.href = 'index.html';
+                    // });
+                    
+                    // Por ahora solo redirigir
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
