@@ -2,11 +2,12 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$host = "localhost";
-$port = "5433";
-$dbname = "vanguardmotors";
+$host = "db.alwfdfubiefrgsgwkylr.supabase.co";
+$port = "5432";
+$dbname = "postgres";
 $user = "postgres";
-$password = "123456";
+$password = "pg584sql";
+
 
 try {
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
