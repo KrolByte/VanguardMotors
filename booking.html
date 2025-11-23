@@ -449,7 +449,7 @@
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
     <script>
-        /* ===============================================================
+    /* ===============================================================
     CONFIGURACIÓN Y VARIABLES GLOBALES
     ================================================================ */
     const RESERVATION_PRICE = 20000;
@@ -590,7 +590,7 @@
     }
 
     /* ===============================================================
-    4. CARGA DE VEHÍCULO
+    4. CARGA DE VEHÍCULO CON VALIDACIÓN DE ESTADO
     ================================================================ */
     function loadVehicleData(vehicleId) {
         document.getElementById('summaryVehicleModel').textContent = 'Loading vehicle...';
@@ -614,6 +614,11 @@
                     document.getElementById('summaryVehicleImage').src = imageUrl;
                     document.getElementById('summaryVehicleModel').textContent = `${vehicleData.brand} ${vehicleData.model}`;
                     document.getElementById('summaryVehicleMeta').textContent = `Year ${vehicleData.year} / Color ${vehicleData.color}`;
+
+                    // ✅ VALIDACIÓN DE ESTADO DEL VEHÍCULO (usando 'availability')
+                    console.log('🔍 Vehicle availability received:', vehicleData.availability);
+                    validateVehicleStatus(vehicleData.availability);
+                    
                 } else {
                     showError("Vehicle not found.", true);
                 }
@@ -622,6 +627,140 @@
                 showError(`Error loading vehicle: ${error.message}`, true);
                 console.error('❌ Vehicle error:', error);
             });
+    }
+
+    /* ===============================================================
+    4.1 VALIDAR ESTADO DEL VEHÍCULO
+    ================================================================ */
+    function validateVehicleStatus(availability) {
+        const btnContinuePayment = document.getElementById('btnContinuePayment');
+        const summarySection = document.querySelector('.col-lg-4 .bg-secondary');
+        const banner = document.getElementById('reservationBanner');
+        
+        // Validar que availability exista
+        if (!availability || availability === undefined || availability === null) {
+            console.warn('⚠️ Vehicle availability is undefined - assuming available');
+            availability = 'Available'; // Valor por defecto
+        }
+        
+        // Normalizar el estado a minúsculas para comparación
+        const normalizedAvailability = String(availability).toLowerCase().trim();
+        
+        if (normalizedAvailability !== 'available' && normalizedAvailability !== 'disponible') {
+            // ❌ VEHÍCULO NO DISPONIBLE
+            
+            // Deshabilitar botón de continuar
+            btnContinuePayment.disabled = true;
+            btnContinuePayment.innerHTML = '<i class="fas fa-ban mr-2"></i>VEHICLE NOT AVAILABLE';
+            btnContinuePayment.classList.remove('btn-primary');
+            btnContinuePayment.classList.add('btn-secondary');
+            
+            // Mostrar mensaje de error persistente
+            let statusMessage = '';
+            let statusIcon = '';
+
+            switch(normalizedAvailability) {
+                case 'en mantenimiento':
+                case 'maintenance':
+                case 'under maintenance':
+                case 'unavailable':
+                case 'no disponible':
+                    statusMessage = 'This vehicle is currently unavailable and cannot be reserved.';
+                    statusIcon = 'fas fa-ban';
+                    break;
+                case 'vendido':
+                case 'sold':
+                    statusMessage = 'This vehicle has been sold and is no longer available.';
+                    statusIcon = 'fas fa-check-circle';
+                    break;
+                case 'reservado':
+                case 'reserved':
+                    statusMessage = 'This vehicle is already reserved by another customer.';
+                    statusIcon = 'fas fa-calendar-check';
+                    break;
+                case 'not available':
+                    statusMessage = 'This vehicle is not available for reservation at the moment.';
+                    statusIcon = 'fas fa-ban';
+                    break;
+                default:
+                    statusMessage = `This vehicle is not available for reservation (Status: ${availability}).`;
+                    statusIcon = 'fas fa-exclamation-triangle';
+            }
+            
+            banner.className = 'alert alert-danger text-center';
+            banner.innerHTML = `
+                <i class="${statusIcon} mr-2"></i>
+                <strong>Vehicle Not Available</strong>
+                <p class="mb-0 mt-2">${statusMessage}</p>
+            `;
+            banner.style.display = 'block';
+            
+            // Agregar badge de estado en el resumen
+            const statusBadge = document.createElement('div');
+            statusBadge.className = 'alert alert-danger mt-3 mb-0';
+            statusBadge.innerHTML = `
+                <i class="${statusIcon} mr-2"></i>
+                <strong>Status:</strong> ${availability.toUpperCase()}
+            `;
+            
+            const vehicleInfoSection = summarySection.querySelector('.text-center.mb-4');
+            if (vehicleInfoSection && !vehicleInfoSection.querySelector('.alert-danger')) {
+                vehicleInfoSection.appendChild(statusBadge);
+            }
+            
+            // Deshabilitar también el formulario
+            disableReservationForm();
+            
+            console.log('❌ Vehicle not available for reservation:', availability);
+            
+        } else {
+            // ✅ VEHÍCULO DISPONIBLE
+            
+            btnContinuePayment.disabled = false;
+            btnContinuePayment.innerHTML = '<i class="fas fa-arrow-right mr-2"></i>CONTINUE TO PAYMENT';
+            btnContinuePayment.classList.remove('btn-secondary');
+            btnContinuePayment.classList.add('btn-primary');
+            
+            // Agregar badge de disponibilidad en el resumen
+            const statusBadge = document.createElement('div');
+            statusBadge.className = 'alert alert-success mt-3 mb-0';
+            statusBadge.innerHTML = `
+                <i class="fas fa-check-circle mr-2"></i>
+                <strong>Status:</strong> AVAILABLE
+            `;
+            
+            const vehicleInfoSection = summarySection.querySelector('.text-center.mb-4');
+            if (vehicleInfoSection && !vehicleInfoSection.querySelector('.alert-success')) {
+                vehicleInfoSection.appendChild(statusBadge);
+            }
+            
+            console.log('✅ Vehicle is available for reservation');
+        }
+    }
+
+    /* ===============================================================
+    4.2 DESHABILITAR FORMULARIO DE RESERVA
+    ================================================================ */
+    function disableReservationForm() {
+        // Deshabilitar todos los campos del formulario excepto los readonly
+        const form = document.getElementById('reservationForm');
+        const inputs = form.querySelectorAll('input:not([readonly]), select');
+        
+        inputs.forEach(input => {
+            input.disabled = true;
+            input.style.opacity = '0.6';
+            input.style.cursor = 'not-allowed';
+        });
+        
+        // Deshabilitar datepickers
+        if (typeof $ !== 'undefined' && $('#date-reserva').data('datetimepicker')) {
+            $('#date-reserva').datetimepicker('disable');
+        }
+        if (typeof $ !== 'undefined' && $('#time-reserva').data('datetimepicker')) {
+            $('#time-reserva').datetimepicker('disable');
+        }
+        
+        console.log('❌ Reservation form disabled - vehicle not available');
     }
 
     /* ===============================================================
@@ -927,10 +1066,12 @@
         banner.innerHTML = `<strong>Error:</strong> ${msg}`;
         banner.style.display = 'block';
 
-        // Auto-hide después de 5 segundos
-        setTimeout(() => {
-            banner.style.display = 'none';
-        }, 5000);
+        // Auto-hide después de 5 segundos (solo para errores no críticos)
+        if (!isCritical) {
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 5000);
+        }
 
         if (isCritical) {
             const submitBtn = document.querySelector('button[type="submit"]');

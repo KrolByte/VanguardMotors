@@ -55,7 +55,7 @@
                 </nav>
             </div>
         </div>
-
+        
         <div class="container-fluid page-header">
             <h1 class="display-3 text-uppercase text-white mb-3">Our Catalog</h1>
             <div class="d-inline-flex text-white">
@@ -64,7 +64,6 @@
                 <h6 class="text-uppercase text-body m-0">Vehicle Catalog</h6>
             </div>
         </div>
-
         <div class="container-fluid py-5">
             <div class="container pt-5 pb-3">
                 <h1 class="display-4 text-uppercase text-center mb-5">Find Your Ideal Car</h1>
@@ -75,7 +74,6 @@
                 </div>
             </div>
         </div>
-
         <div class="container-fluid bg-secondary py-5 px-sm-3 px-md-5" style="margin-top: 90px;">
             <div class="row pt-5">
                 <div class="col-12 text-center">
@@ -125,28 +123,22 @@
             function renderVehicles(vehicles) {
                 const container = document.getElementById('vehiclesContainer');
                 container.innerHTML = '';
-
                 vehicles.forEach((v, i) => {
                     const col = document.createElement('div');
                     col.className = 'col-lg-4 col-md-6 mb-4';
-
                     const card = document.createElement('div');
                     card.className = 'rent-item mb-4';
-
                     const img = document.createElement('img');
                     img.className = 'img-fluid mb-4';
                     img.src = v.primary_image || (v.images && v.images[0]) || 'img/car-rent-6.png';
                     img.alt = (v.brand || '') + ' ' + (v.model || '');
                     img.onerror = function() { this.src = 'img/car-rent-6.png'; };
-
                     const title = document.createElement('h4');
                     title.className = 'text-uppercase mb-4';
                     title.textContent = (v.brand || '') + ' ' + (v.model || '');
-
                     const price = document.createElement('h3');
                     price.className = 'text-primary mb-3';
                     price.textContent = '$' + (v.price ? new Intl.NumberFormat('es-CO').format(v.price) : '0');
-
                     const meta = document.createElement('div');
                     meta.className = 'd-flex justify-content-center mb-4';
                     meta.innerHTML = `
@@ -158,12 +150,12 @@
                 const btn = document.createElement('a');
                 btn.className = 'btn btn-primary px-3';
                 btn.href = 'detail.html?vehicle_id=' + encodeURIComponent(v.vehicle_id || '');
-                btn.textContent = 'View Details';                    card.appendChild(img);
+                btn.textContent = 'View Details';                    
+                    card.appendChild(img);
                     card.appendChild(title);
                     card.appendChild(price);
                     card.appendChild(meta);
                     card.appendChild(btn);
-
                     col.appendChild(card);
                     container.appendChild(col);
                 });
@@ -175,5 +167,4 @@
             }
         </script>
     </body>
-
-    </html>
+</html>
