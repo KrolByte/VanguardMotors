@@ -94,10 +94,8 @@
         .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
-        .status-confirmed { background: #cce5ff; color: #004085; }
-        .status-completed { background: #d1ecf1; color: #0c5460; }
-        .status-cancelled { background: #f8d7da; color: #721c24; }
-        .status-rejected { background: #e2e3e5; color: #383d41; }
+        .status-completed { background: #cce5ff; color: #004085; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
         .filter-btn { border-radius: 20px; padding: 8px 16px; margin: 0 5px 10px 0; font-size: 0.9rem; }
         .filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
         .info-label { font-size: 0.75rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -235,58 +233,43 @@
                         <i class="fas fa-list mr-1"></i> All
                     </button>
                     <button class="btn btn-outline-warning filter-btn" data-status="pending">
-                        <i class="fas fa-clock mr-1"></i> Pending
+                        <i class="fas fa-clock mr-1"></i> Pending Review
                     </button>
                     <button class="btn btn-outline-success filter-btn" data-status="approved">
-                        <i class="fas fa-thumbs-up mr-1"></i> Approved
-                    </button>
-                    <button class="btn btn-outline-info filter-btn" data-status="confirmed">
-                        <i class="fas fa-check mr-1"></i> Confirmed
+                        <i class="fas fa-check-circle mr-1"></i> Approved
                     </button>
                     <button class="btn btn-outline-primary filter-btn" data-status="completed">
                         <i class="fas fa-check-double mr-1"></i> Completed
                     </button>
-                    <button class="btn btn-outline-danger filter-btn" data-status="cancelled">
-                        <i class="fas fa-times mr-1"></i> Cancelled
+                    <button class="btn btn-outline-danger filter-btn" data-status="rejected">
+                        <i class="fas fa-times-circle mr-1"></i> Rejected
                     </button>
                 </div>
                 
                 <!-- Reservation Stats -->
                 <div class="row mb-4">
-                    <div class="col-6 col-md-2 mb-2">
+                    <div class="col-6 col-md-3 mb-2">
                         <div class="stats-card stats-mini text-center">
                             <h4 id="statPending" class="text-warning">0</h4>
-                            <small class="text-muted">Pending</small>
+                            <small class="text-muted">Pending Review</small>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2 mb-2">
+                    <div class="col-6 col-md-3 mb-2">
                         <div class="stats-card stats-mini text-center">
                             <h4 id="statApproved" class="text-success">0</h4>
                             <small class="text-muted">Approved</small>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2 mb-2">
-                        <div class="stats-card stats-mini text-center">
-                            <h4 id="statConfirmed" class="text-info">0</h4>
-                            <small class="text-muted">Confirmed</small>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-2 mb-2">
+                    <div class="col-6 col-md-3 mb-2">
                         <div class="stats-card stats-mini text-center">
                             <h4 id="statCompleted" class="text-primary">0</h4>
                             <small class="text-muted">Completed</small>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2 mb-2">
+                    <div class="col-6 col-md-3 mb-2">
                         <div class="stats-card stats-mini text-center">
-                            <h4 id="statCancelled" class="text-danger">0</h4>
-                            <small class="text-muted">Cancelled</small>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-2 mb-2">
-                        <div class="stats-card stats-mini text-center">
-                            <h4 id="statTotal" class="text-dark">0</h4>
-                            <small class="text-muted">Total</small>
+                            <h4 id="statRejected" class="text-danger">0</h4>
+                            <small class="text-muted">Rejected</small>
                         </div>
                     </div>
                 </div>
@@ -488,7 +471,7 @@
         /* ===============================================================
            CONFIGURACIÓN GLOBAL
         ================================================================ */
-        const ADVISOR_ID = 3;
+        const ADVISOR_ID = 7;
         const API_URLS = {
             vehicles: 'backend-scripts/get_vehicles.php',
             addVehicle: 'backend-scripts/add_vehicle.php',
@@ -640,40 +623,91 @@
 
         function getActionButtons(r) {
             const s = r.status;
-            if (s === 'pending') return `
-                <button class="btn btn-info btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'confirmed')"><i class="fas fa-check mr-1"></i>Confirm</button>
-                <button class="btn btn-outline-danger btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'cancelled')"><i class="fas fa-times mr-1"></i>Cancel</button>`;
-            if (s === 'approved') return `
-                <button class="btn btn-info btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'confirmed')"><i class="fas fa-check mr-1"></i>Confirm</button>
-                <button class="btn btn-success btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'completed')"><i class="fas fa-check-double mr-1"></i>Complete</button>
-                <button class="btn btn-outline-danger btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'cancelled')"><i class="fas fa-times mr-1"></i>Cancel</button>`;
-            if (s === 'confirmed') return `
-                <button class="btn btn-success btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'completed')"><i class="fas fa-check-double mr-1"></i>Complete</button>
-                <button class="btn btn-outline-danger btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'cancelled')"><i class="fas fa-times mr-1"></i>Cancel</button>`;
+            
+            // PENDING: Esperando revisión del gerente - SIN ACCIONES para asesor
+            if (s === 'pending') {
+                return `<span class="text-muted">
+                    <i class="fas fa-hourglass-half mr-1"></i>Awaiting manager review
+                </span>`;
+            }
+            
+            // APPROVED: Aprobada por gerente - Asesor puede rechazar o completar
+            if (s === 'approved') {
+                return `
+                    <button class="btn btn-primary btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'completed')">
+                        <i class="fas fa-check-double mr-1"></i> Mark as Completed
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'rejected')">
+                        <i class="fas fa-times-circle mr-1"></i> Reject
+                    </button>
+                `;
+            }
+            
+            // REJECTED: Rechazada - SOLO LECTURA
+            if (s === 'rejected') {
+                return `<span class="text-danger">
+                    <i class="fas fa-ban mr-1"></i>Rejected (read only)
+                </span>`;
+            }
+            
+            // COMPLETED: Completada - ESTADO FINAL
+            if (s === 'completed') {
+                return `<span class="text-primary">
+                    <i class="fas fa-check-circle mr-1"></i>Completed (final status)
+                </span>`;
+            }
+            
             return `<span class="text-muted"><i class="fas fa-lock mr-1"></i>No actions</span>`;
         }
 
         function updateReservationStatus(id, newStatus) {
-            const labels = { confirmed: 'confirm', completed: 'mark as completed', cancelled: 'cancel' };
+            const config = {
+                rejected: {
+                    title: 'Reject Reservation?',
+                    text: 'Are you sure you want to reject this approved reservation? This action cannot be undone.',
+                    icon: 'warning',
+                    color: '#dc3545',
+                    verb: 'reject'
+                },
+                completed: {
+                    title: 'Mark as Completed?',
+                    text: 'Confirm that the appointment was completed successfully.',
+                    icon: 'success',
+                    color: '#007bff',
+                    verb: 'mark as completed'
+                }
+            };
+            
+            const c = config[newStatus];
+            
             Swal.fire({
-                title: `${labels[newStatus].charAt(0).toUpperCase() + labels[newStatus].slice(1)} Reservation?`,
-                icon: newStatus === 'cancelled' ? 'warning' : 'question',
+                title: c.title,
+                text: c.text,
+                icon: c.icon,
                 showCancelButton: true,
-                confirmButtonColor: newStatus === 'cancelled' ? '#dc3545' : '#007bff',
-                confirmButtonText: `Yes, ${labels[newStatus]}`
+                confirmButtonColor: c.color,
+                confirmButtonText: `Yes, ${c.verb}`,
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    
                     const formData = new FormData();
                     formData.append('transaction_id', id);
                     formData.append('status', newStatus);
                     formData.append('advisor_id', ADVISOR_ID);
+                    
                     fetch(API_URLS.updateReservationStatus, { method: 'POST', body: formData })
                         .then(r => r.json())
                         .then(data => {
                             if (data.success) {
-                                Swal.fire({ icon: 'success', title: 'Updated!', timer: 1500, showConfirmButton: false })
-                                    .then(() => loadReservations(currentFilter));
+                                Swal.fire({ 
+                                    icon: 'success', 
+                                    title: newStatus === 'completed' ? 'Completed!' : 'Rejected!',
+                                    text: 'Reservation status updated successfully.',
+                                    timer: 1500, 
+                                    showConfirmButton: false 
+                                }).then(() => loadReservations(currentFilter));
                             } else {
                                 Swal.fire({ icon: 'error', title: 'Error', text: data.message });
                             }
@@ -721,15 +755,21 @@
         function updateReservationStats(stats) {
             document.getElementById('statPending').textContent = stats.pending || 0;
             document.getElementById('statApproved').textContent = stats.approved || 0;
-            document.getElementById('statConfirmed').textContent = stats.confirmed || 0;
             document.getElementById('statCompleted').textContent = stats.completed || 0;
-            document.getElementById('statCancelled').textContent = stats.cancelled || 0;
-            document.getElementById('statTotal').textContent = stats.total || 0;
+            document.getElementById('statRejected').textContent = stats.rejected || 0;
         }
 
         function formatDate(d) {
             if (!d) return 'N/A';
-            return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            // Evitar conversión de zona horaria usando split
+            const [year, month, day] = d.split('-');
+            const date = new Date(year, month - 1, day);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                timeZone: 'UTC'
+            });
         }
         function formatTime(t) {
             if (!t) return 'N/A';

@@ -24,11 +24,24 @@ try {
         throw new Exception("Invalid advisor ID");
     }
     
+    // VALIDAR que el employed_id es un advisor real
+    $sql_validate_advisor = "SELECT u.role FROM employed e 
+                             INNER JOIN users u ON e.user_id = u.user_id 
+                             WHERE e.employed_id = ?";
+    $stmt_validate = $conn->prepare($sql_validate_advisor);
+    $stmt_validate->execute([$advisor_id]);
+    $advisor_data = $stmt_validate->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$advisor_data || $advisor_data['role'] !== 'advisor') {
+        throw new Exception("Access denied: Only advisors can update reservations");
+    }
+    
     // Estados válidos que el asesor puede asignar
-    $valid_statuses = ['confirmed', 'completed', 'cancelled'];
+    // El asesor puede: rechazar reservas aprobadas o marcarlas como completadas
+    $valid_statuses = ['rejected', 'completed'];
     
     if (!in_array($new_status, $valid_statuses)) {
-        throw new Exception("Invalid status. Allowed: " . implode(', ', $valid_statuses));
+        throw new Exception("Invalid status. Allowed: rejected, completed");
     }
     
     // Verificar que la transacción pertenece al asesor
@@ -46,17 +59,15 @@ try {
     // Verificar transiciones de estado válidas
     $current_status = $transaction['status'];
     $allowed_transitions = [
-        'pending' => ['confirmed', 'cancelled'],
-        'approved' => ['confirmed', 'completed', 'cancelled'],
-        'confirmed' => ['completed', 'cancelled'],
-        'completed' => [], // Estado final
-        'cancelled' => [], // Estado final
-        'rejected' => []   // Estado final (solo gerente)
+        'pending' => [],       // Pending: solo gerente puede aprobar/rechazar
+        'approved' => ['rejected', 'completed'], // Approved: asesor puede rechazar o completar
+        'rejected' => [],      // Rejected: estado final, sin cambios
+        'completed' => []      // Completed: estado final, sin cambios
     ];
     
     if (!isset($allowed_transitions[$current_status]) || 
         !in_array($new_status, $allowed_transitions[$current_status])) {
-        throw new Exception("Cannot change from '$current_status' to '$new_status'");
+        throw new Exception("Cannot change from '$current_status' to '$new_status'. Only 'approved' reservations can be updated by advisors.");
     }
     
     // Actualizar estado

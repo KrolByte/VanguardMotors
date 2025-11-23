@@ -17,13 +17,14 @@ try {
     $status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
     
     // Query para obtener reservas del asesor
+    // IMPORTANTE: Usar TO_CHAR para evitar problemas de zona horaria con las fechas
     $sql = "SELECT 
                 t.transaction_id,
                 t.type_transaction,
                 t.status,
-                t.creation_date,
-                t.appointment_date,
-                t.appointment_time,
+                TO_CHAR(t.creation_date, 'YYYY-MM-DD') as creation_date,
+                TO_CHAR(t.appointment_date, 'YYYY-MM-DD') as appointment_date,
+                t.appointment_time::text as appointment_time,
                 t.reservation_price,
                 t.vehicle_id,
                 t.person_id,
@@ -107,10 +108,8 @@ try {
     $stats = [
         'pending' => 0,
         'approved' => 0,
-        'confirmed' => 0,
-        'completed' => 0,
-        'cancelled' => 0,
         'rejected' => 0,
+        'completed' => 0,
         'total' => count($reservations)
     ];
     
