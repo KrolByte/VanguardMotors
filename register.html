@@ -94,22 +94,22 @@
 </head>
 <body>
   <div class="form-box">
-    <h2 class="register-title">Create Account</h2>
-    <form id="registerForm">
-      <label for="name" class="form-label">Full Name</label>
-      <input type="text" id="name" class="form-control" placeholder="Enter your full name" required>
+    <form id="registerForm" action="backend-scripts/register_handler.php" method="POST">
+    
+    <label for="name" class="form-label">Full Name</label>
+    <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required>
 
-       <label for="idNumber" class="form-label">Identification Number</label>
-       <input type="text" id="idNumber" class="form-control" placeholder="Enter your ID number" required>
+    <label for="idNumber" class="form-label">Identification Number</label>
+    <input type="text" id="idNumber" name="id_number" class="form-control" placeholder="Enter your ID number" required>
 
-       <label for="phone" class="form-label">Phone Number</label>
-       <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number" required>
+    <label for="phone" class="form-label">Phone Number</label>
+    <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
 
-      <label for="email" class="form-label">Email Address</label>
-      <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+    <label for="email" class="form-label">Email Address</label>
+    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
 
-      <label for="password" class="form-label">Password</label>
-      <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+    <label for="password" class="form-label">Password</label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="Create a password" required>
 
       <button type="submit" class="btn-primary">Sign Up</button>
     </form>
@@ -119,23 +119,5 @@
     </div>
   </div>
 
-  <script>
-    // Registration logic
-    document.getElementById("registerForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      if (name && email && password) {
-        localStorage.setItem("user", JSON.stringify({ name, email, password }));
-        alert("✅ Account created successfully!");
-        window.location.href = "login.html";
-      } else {
-        alert("⚠️ Please fill in all fields");
-      }
-    });
-  </script>
 </body>
 </html>
