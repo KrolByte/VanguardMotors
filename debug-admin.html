@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Debug Admin Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-box { 
+            border: 2px solid #ddd; 
+            padding: 20px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+        }
+        .success { border-color: #28a745; background: #d4edda; }
+        .error { border-color: #dc3545; background: #f8d7da; }
+        .loading { border-color: #ffc107; background: #fff3cd; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Admin Panel Debug Tool</h1>
+    <p>Use esta página para verificar que todos los endpoints funcionan correctamente.</p>
+
+    <div class="test-box">
+        <h3>1. Test: Cargar Asesor</h3>
+        <label>Advisor ID: <input type="number" id="advisorId" value="4"></label>
+        <button onclick="testAdvisor()">Test Advisor</button>
+        <div id="advisorResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>2. Test: Cargar Vehículos</h3>
+        <button onclick="testVehicles()">Test Vehicles</button>
+        <div id="vehiclesResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>3. Test: Cargar Imágenes de Vehículo</h3>
+        <label>Vehicle ID: <input type="number" id="vehicleId" value="1"></label>
+        <button onclick="testImages()">Test Images</button>
+        <div id="imagesResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>4. Test: Verificar Estructura de BD</h3>
+        <button onclick="showQueries()">Ver Queries de Verificación</button>
+        <div id="queriesResult" style="display:none;">
+            <h4>Ejecuta estos queries en tu BD:</h4>
+            <pre>
+-- Ver asesores disponibles
+SELECT e.employed_id, e.full_name, u.role 
+FROM employed e
+JOIN users u ON e.user_id = u.user_id
+WHERE u.role = 'advisor';
+
+-- Ver vehículos
+SELECT vehicle_id, brand, model, year, availability 
+FROM vehicle 
+LIMIT 5;
+
+-- Ver imágenes
+SELECT image_id, vehicle_id, image_url, is_main 
+FROM vehicle_image 
+LIMIT 10;
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'backend-scripts/';
+
+        function testAdvisor() {
+            const advisorId = document.getElementById('advisorId').value;
+            const resultDiv = document.getElementById('advisorResult');
+            
+            resultDiv.innerHTML = '<p class="loading">⏳ Loading...</p>';
+            
+            fetch(API_BASE + 'get_advisor_data.php?advisor_id=' + advisorId)
+                .then(r => {
+                    console.log('Advisor Response Status:', r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    console.log('Advisor Data:', data);
+                    
+                    if (data.success) {
+                        resultDiv.innerHTML = `
+                            <div class="success">
+                                <p>✅ <strong>SUCCESS!</strong></p>
+                                <p><strong>Name:</strong> ${data.data.full_name}</p>
+                                <p><strong>Email:</strong> ${data.data.email}</p>
+                                <p><strong>Role:</strong> ${data.data.role}</p>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="error">
+                                <p>❌ <strong>ERROR:</strong> ${data.message}</p>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Advisor Error:', err);
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <p>❌ <strong>FETCH ERROR:</strong></p>
+                            <p>${err.message}</p>
+                            <p><strong>Posibles causas:</strong></p>
+                            <ul>
+                                <li>Archivo get_advisor_data.php no existe</li>
+                                <li>Ruta incorrecta</li>
+                                <li>Error de sintaxis en PHP</li>
+                            </ul>
+                        </div>
+                    `;
+                });
+        }
+
+        function testVehicles() {
+            const resultDiv = document.getElementById('vehiclesResult');
+            
+            resultDiv.innerHTML = '<p class="loading">⏳ Loading...</p>';
+            
+            fetch(API_BASE + 'get_vehicles.php')
+                .then(r => {
+                    console.log('Vehicles Response Status:', r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    console.log('Vehicles Data:', data);
+                    
+                    if (data.success) {
+                        resultDiv.innerHTML = `
+                            <div class="success">
+                                <p>✅ <strong>SUCCESS!</strong></p>
+                                <p><strong>Total Vehicles:</strong> ${data.count || data.data.length}</p>
+                                <p><strong>First 3 Vehicles:</strong></p>
+                                <ul>
+                                    ${data.data.slice(0, 3).map(v => 
+                                        `<li>${v.brand} ${v.model} (${v.year}) - ${v.availability}</li>`
+                                    ).join('')}
+                                </ul>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="error">
+                                <p>❌ <strong>ERROR:</strong> ${data.message}</p>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Vehicles Error:', err);
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <p>❌ <strong>FETCH ERROR:</strong></p>
+                            <p>${err.message}</p>
+                            <p><strong>Posibles causas:</strong></p>
+                            <ul>
+                                <li>Archivo get_vehicles.php tiene error de sintaxis</li>
+                                <li>Base de datos no conecta</li>
+                                <li>Query SQL tiene error</li>
+                            </ul>
+                        </div>
+                    `;
+                });
+        }
+
+        function testImages() {
+            const vehicleId = document.getElementById('vehicleId').value;
+            const resultDiv = document.getElementById('imagesResult');
+            
+            resultDiv.innerHTML = '<p class="loading">⏳ Loading...</p>';
+            
+            fetch(API_BASE + 'get_vehicle_images.php?vehicle_id=' + vehicleId)
+                .then(r => {
+                    console.log('Images Response Status:', r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    console.log('Images Data:', data);
+                    
+                    if (data.success) {
+                        resultDiv.innerHTML = `
+                            <div class="success">
+                                <p>✅ <strong>SUCCESS!</strong></p>
+                                <p><strong>Total Images:</strong> ${data.count}</p>
+                                ${data.data.length > 0 ? `
+                                    <p><strong>Images:</strong></p>
+                                    <ul>
+                                        ${data.data.map(img => 
+                                            `<li>ID: ${img.image_id} - ${img.image_url} ${img.is_main ? '⭐ MAIN' : ''}</li>`
+                                        ).join('')}
+                                    </ul>
+                                ` : '<p>No images found</p>'}
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="error">
+                                <p>❌ <strong>ERROR:</strong> ${data.message}</p>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Images Error:', err);
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <p>❌ <strong>FETCH ERROR:</strong></p>
+                            <p>${err.message}</p>
+                            <p><strong>Posibles causas:</strong></p>
+                            <ul>
+                                <li>Archivo get_vehicle_images.php no existe</li>
+                                <li>No está en backend-scripts/</li>
+                                <li>Error de sintaxis en PHP</li>
+                            </ul>
+                        </div>
+                    `;
+                });
+        }
+
+        function showQueries() {
+            const div = document.getElementById('queriesResult');
+            div.style.display = div.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Auto-test al cargar
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 Debug Tool Loaded');
+            console.log('API Base:', API_BASE);
+        });
+    </script>
+</body>
+</html>

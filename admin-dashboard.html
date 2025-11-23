@@ -4,28 +4,17 @@
     <meta charset="utf-8">
     <title>Admin Dashboard - Vanguard Motors</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    
-    <!-- Favicon -->
     <link href="img/favicon.ico" rel="icon">
-    
-    <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rubik&display=swap" rel="stylesheet"> 
-    
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Stylesheet -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
-    
-    <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
+        /* ========== ESTILOS GENERALES ========== */
         .admin-header {
             background: linear-gradient(135deg, #1c1c1c 0%, #2d2d2d 100%);
             padding: 20px 0;
@@ -38,13 +27,8 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: transform 0.3s;
         }
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-        .stats-icon {
-            font-size: 2.5rem;
-            opacity: 0.8;
-        }
+        .stats-card:hover { transform: translateY(-5px); }
+        .stats-icon { font-size: 2.5rem; opacity: 0.8; }
         .vehicle-table {
             background: white;
             border-radius: 10px;
@@ -57,57 +41,68 @@
             object-fit: cover;
             border-radius: 5px;
         }
-        .badge-status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
-        .modal-xl {
-            max-width: 90%;
-        }
-        .image-preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .image-preview-item {
-            position: relative;
-            width: 120px;
-            height: 100px;
-        }
-        .image-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 5px;
-            border: 2px solid #ddd;
-        }
+        .badge-status { padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; }
+        .modal-xl { max-width: 90%; }
+        
+        /* ========== IMAGE PREVIEW ========== */
+        .image-preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .image-preview-item { position: relative; width: 120px; height: 100px; }
+        .image-preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; border: 2px solid #ddd; }
         .image-preview-item .remove-image {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid white;
+            position: absolute; top: -8px; right: -8px; background: #dc3545; color: white;
+            border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; border: 2px solid white;
         }
         .image-preview-item .main-badge {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: #28a745;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 0.7rem;
+            position: absolute; top: 5px; left: 5px; background: #28a745; color: white;
+            padding: 2px 8px; border-radius: 3px; font-size: 0.7rem;
         }
+        .image-preview-item .set-main-btn {
+            position: absolute; bottom: 5px; left: 5px; background: #ffc107; color: white;
+            border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; border: 2px solid white; opacity: 0.8;
+        }
+        .image-preview-item .set-main-btn:hover { opacity: 1; }
+        .image-preview-item .set-main-btn.active { background: #28a745; }
+
+        /* ========== TABS ========== */
+        .nav-tabs-custom { border-bottom: 2px solid #dee2e6; }
+        .nav-tabs-custom .nav-link {
+            color: #6c757d; border: none; border-bottom: 3px solid transparent;
+            padding: 15px 25px; font-weight: 500; margin-bottom: -2px;
+        }
+        .nav-tabs-custom .nav-link.active { color: #007bff; border-bottom-color: #007bff; background: transparent; }
+        .nav-tabs-custom .nav-link:hover { border-bottom-color: #dee2e6; }
+
+        /* ========== RESERVATIONS ========== */
+        .reservation-card {
+            background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px; overflow: hidden; transition: transform 0.2s;
+        }
+        .reservation-card:hover { transform: translateY(-3px); }
+        .reservation-header {
+            padding: 15px 20px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .reservation-body { padding: 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .reservation-vehicle-img { width: 150px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .reservation-info { flex: 1; min-width: 300px; }
+        .reservation-actions {
+            display: flex; gap: 10px; padding: 15px 20px; background: #f8f9fa;
+            border-top: 1px solid #eee; flex-wrap: wrap; align-items: center;
+        }
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-confirmed { background: #cce5ff; color: #004085; }
+        .status-completed { background: #d1ecf1; color: #0c5460; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-rejected { background: #e2e3e5; color: #383d41; }
+        .filter-btn { border-radius: 20px; padding: 8px 16px; margin: 0 5px 10px 0; font-size: 0.9rem; }
+        .filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
+        .info-label { font-size: 0.75rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stats-mini { padding: 15px; }
+        .stats-mini h4 { font-size: 1.5rem; margin-bottom: 0; }
     </style>
 </head>
 
@@ -117,10 +112,7 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h2 class="text-white mb-0">
-                        <i class="fas fa-tachometer-alt mr-2"></i>
-                        Administrative Panel
-                    </h2>
+                    <h2 class="text-white mb-0"><i class="fas fa-tachometer-alt mr-2"></i>Administrative Panel</h2>
                     <small class="text-white-50">Vanguard Motors</small>
                 </div>
                 <div class="col-md-6 text-right">
@@ -141,30 +133,30 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="container my-5">
+    <div class="container my-4">
         <div class="row">
-            <div class="col-md-3 mb-4">
+            <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <i class="fas fa-car stats-icon text-primary"></i>
                     <h3 class="mt-2 mb-0" id="totalVehicles">0</h3>
                     <p class="text-muted mb-0">Total Vehicles</p>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
+            <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <i class="fas fa-check-circle stats-icon text-success"></i>
                     <h3 class="mt-2 mb-0" id="availableVehicles">0</h3>
                     <p class="text-muted mb-0">Available</p>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
+            <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <i class="fas fa-calendar-check stats-icon text-warning"></i>
                     <h3 class="mt-2 mb-0" id="reservedVehicles">0</h3>
                     <p class="text-muted mb-0">Reserved</p>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
+            <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <i class="fas fa-ban stats-icon text-danger"></i>
                     <h3 class="mt-2 mb-0" id="unavailableVehicles">0</h3>
@@ -174,107 +166,183 @@
         </div>
     </div>
 
-    <!-- Vehicles Table -->
-    <div class="container mb-5">
-        <div class="vehicle-table">
-            <div class="p-4 bg-secondary">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h4 class="text-white mb-0">
-                            <i class="fas fa-list mr-2"></i>Vehicle Inventory
-                        </h4>
+    <!-- Navigation Tabs -->
+    <div class="container mb-4">
+        <ul class="nav nav-tabs nav-tabs-custom" id="adminTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#vehiclesTab">
+                    <i class="fas fa-car mr-2"></i>Vehicles
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#reservationsTab">
+                    <i class="fas fa-calendar-alt mr-2"></i>My Reservations
+                    <span class="badge badge-warning ml-2" id="reservationsBadge">0</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- ========== VEHICLES TAB ========== -->
+        <div class="tab-pane fade show active" id="vehiclesTab">
+            <div class="container mb-5">
+                <div class="vehicle-table">
+                    <div class="p-4 bg-secondary">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h4 class="text-white mb-0"><i class="fas fa-list mr-2"></i>Vehicle Inventory</h4>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <button class="btn btn-primary" onclick="openAddVehicleModal()">
+                                    <i class="fas fa-plus mr-2"></i>Add New Vehicle
+                                </button>
+                                <button class="btn btn-outline-light ml-2" onclick="loadVehicles()">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6 text-right">
-                        <button class="btn btn-primary" onclick="openAddVehicleModal()">
-                            <i class="fas fa-plus mr-2"></i>Add New Vehicle
-                        </button>
-                        <button class="btn btn-outline-light ml-2" onclick="loadVehicles()">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>ID</th><th>Image</th><th>Brand</th><th>Model</th>
+                                    <th>Year</th><th>Color</th><th>Price</th><th>Status</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehiclesTableBody">
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                                        <p class="mt-2 text-muted">Loading vehicles...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>Brand</th>
-                            <th>Model</th>
-                            <th>Year</th>
-                            <th>Color</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vehiclesTableBody">
-                        <tr>
-                            <td colspan="9" class="text-center py-4">
-                                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
-                                <p class="mt-2 text-muted">Loading vehicles...</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        </div>
+
+        <!-- ========== RESERVATIONS TAB ========== -->
+        <div class="tab-pane fade" id="reservationsTab">
+            <div class="container mb-5">
+                <!-- Filters -->
+                <div class="mb-3">
+                    <button class="btn btn-outline-secondary filter-btn active" data-status="all">
+                        <i class="fas fa-list mr-1"></i> All
+                    </button>
+                    <button class="btn btn-outline-warning filter-btn" data-status="pending">
+                        <i class="fas fa-clock mr-1"></i> Pending
+                    </button>
+                    <button class="btn btn-outline-success filter-btn" data-status="approved">
+                        <i class="fas fa-thumbs-up mr-1"></i> Approved
+                    </button>
+                    <button class="btn btn-outline-info filter-btn" data-status="confirmed">
+                        <i class="fas fa-check mr-1"></i> Confirmed
+                    </button>
+                    <button class="btn btn-outline-primary filter-btn" data-status="completed">
+                        <i class="fas fa-check-double mr-1"></i> Completed
+                    </button>
+                    <button class="btn btn-outline-danger filter-btn" data-status="cancelled">
+                        <i class="fas fa-times mr-1"></i> Cancelled
+                    </button>
+                </div>
+                
+                <!-- Reservation Stats -->
+                <div class="row mb-4">
+                    <div class="col-6 col-md-2 mb-2">
+                        <div class="stats-card stats-mini text-center">
+                            <h4 id="statPending" class="text-warning">0</h4>
+                            <small class="text-muted">Pending</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2">
+                        <div class="stats-card stats-mini text-center">
+                            <h4 id="statApproved" class="text-success">0</h4>
+                            <small class="text-muted">Approved</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2">
+                        <div class="stats-card stats-mini text-center">
+                            <h4 id="statConfirmed" class="text-info">0</h4>
+                            <small class="text-muted">Confirmed</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2">
+                        <div class="stats-card stats-mini text-center">
+                            <h4 id="statCompleted" class="text-primary">0</h4>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2">
+                        <div class="stats-card stats-mini text-center">
+                            <h4 id="statCancelled" class="text-danger">0</h4>
+                            <small class="text-muted">Cancelled</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2">
+                        <div class="stats-card stats-mini text-center">
+                            <h4 id="statTotal" class="text-dark">0</h4>
+                            <small class="text-muted">Total</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reservations List -->
+                <div id="reservationsContainer">
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                        <p class="mt-3 text-muted">Click on "My Reservations" tab to load</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Vehicle Modal -->
-    <div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-xl" role="document">
+    <!-- ADD VEHICLE MODAL -->
+    <div class="modal fade" id="addVehicleModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-car mr-2"></i>Add New Vehicle
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
+                    <h5 class="modal-title"><i class="fas fa-car mr-2"></i>Add New Vehicle</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <form id="addVehicleForm" enctype="multipart/form-data">
                     <div class="modal-body">
                         <div class="row">
-                            <!-- Left Column -->
                             <div class="col-md-6">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-info-circle mr-2"></i>Vehicle Information
-                                </h6>
-                                
+                                <h6 class="text-primary mb-3"><i class="fas fa-info-circle mr-2"></i>Vehicle Information</h6>
                                 <div class="form-group">
                                     <label>Brand <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="brand" required placeholder="e.g., Toyota, Honda, BMW">
+                                    <input type="text" class="form-control" name="brand" required placeholder="e.g., Toyota">
                                 </div>
-                                
                                 <div class="form-group">
                                     <label>Model <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="model" required placeholder="e.g., Corolla, Civic, X5">
+                                    <input type="text" class="form-control" name="model" required placeholder="e.g., Corolla">
                                 </div>
-                                
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Year <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control" name="year" required min="1900" max="2030" placeholder="2024">
+                                            <input type="number" class="form-control" name="year" required min="1900" max="2030">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Color <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="color" required placeholder="e.g., Black, White, Red">
+                                            <input type="text" class="form-control" name="color" required>
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label>Price (COP) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="price" required min="0" step="1000" placeholder="50000000">
+                                    <input type="number" class="form-control" name="price" required min="0" step="1000">
                                 </div>
-                                
                                 <div class="form-group">
-                                    <label>Availability Status <span class="text-danger">*</span></label>
+                                    <label>Status <span class="text-danger">*</span></label>
                                     <select class="form-control" name="availability" required>
                                         <option value="available" selected>Available</option>
                                         <option value="reserved">Reserved</option>
@@ -283,84 +351,59 @@
                                     </select>
                                 </div>
                             </div>
-                            
-                            <!-- Right Column -->
                             <div class="col-md-6">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-align-left mr-2"></i>Description
-                                </h6>
-                                
+                                <h6 class="text-primary mb-3"><i class="fas fa-align-left mr-2"></i>Description</h6>
                                 <div class="form-group">
-                                    <label>Vehicle Description</label>
-                                    <textarea class="form-control" name="description" rows="5" placeholder="Enter detailed description of the vehicle..."></textarea>
+                                    <textarea class="form-control" name="description" rows="4" placeholder="Vehicle description..."></textarea>
                                 </div>
-                                
-                                <h6 class="text-primary mb-3 mt-4">
-                                    <i class="fas fa-images mr-2"></i>Vehicle Images
-                                </h6>
-                                
+                                <h6 class="text-primary mb-3 mt-4"><i class="fas fa-images mr-2"></i>Images</h6>
                                 <div class="form-group">
                                     <label>Upload Images (Max 5) <span class="text-danger">*</span></label>
                                     <input type="file" class="form-control-file" id="vehicleImages" accept="image/*" multiple required>
-                                    <small class="form-text text-muted">
-                                        Select up to 5 images. First image will be the main image.
-                                    </small>
+                                    <small class="form-text text-muted">First image = main image</small>
                                 </div>
-                                
                                 <div id="imagePreviewContainer" class="image-preview-container"></div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            <i class="fas fa-times mr-2"></i>Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save mr-2"></i>Save Vehicle
-                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i>Save</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Edit Vehicle Modal -->
-    <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
+    <!-- EDIT VEHICLE MODAL -->
+    <div class="modal fade" id="editVehicleModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit mr-2"></i>Edit Vehicle
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
+                    <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit Vehicle</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
                 </div>
-                <form id="editVehicleForm">
+                <form id="editVehicleForm" enctype="multipart/form-data">
                     <input type="hidden" name="vehicle_id" id="editVehicleId">
+                    <input type="hidden" name="deleted_images" id="deletedImages" value="">
+                    <input type="hidden" name="main_image_id" id="mainImageId" value="">
                     <div class="modal-body">
                         <div class="row">
-                            <!-- Left Column -->
                             <div class="col-md-6">
-                                <h6 class="text-warning mb-3">
-                                    <i class="fas fa-info-circle mr-2"></i>Vehicle Information
-                                </h6>
-                                
+                                <h6 class="text-warning mb-3"><i class="fas fa-info-circle mr-2"></i>Vehicle Information</h6>
                                 <div class="form-group">
                                     <label>Brand <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="brand" id="editBrand" required>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label>Model <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="model" id="editModel" required>
                                 </div>
-                                
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Year <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control" name="year" id="editYear" required min="1900" max="2030">
+                                            <input type="number" class="form-control" name="year" id="editYear" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -370,21 +413,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label>Price (COP) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="price" id="editPrice" required min="0" step="1000">
+                                    <input type="number" class="form-control" name="price" id="editPrice" required>
                                 </div>
-                            </div>
-                            
-                            <!-- Right Column -->
-                            <div class="col-md-6">
-                                <h6 class="text-warning mb-3">
-                                    <i class="fas fa-check-circle mr-2"></i>Availability
-                                </h6>
-                                
                                 <div class="form-group">
-                                    <label>Availability Status <span class="text-danger">*</span></label>
+                                    <label>Status <span class="text-danger">*</span></label>
                                     <select class="form-control" name="availability" id="editAvailability" required>
                                         <option value="available">Available</option>
                                         <option value="reserved">Reserved</option>
@@ -392,27 +426,47 @@
                                         <option value="unavailable">Unavailable</option>
                                     </select>
                                 </div>
-                                
-                                <h6 class="text-warning mb-3 mt-4">
-                                    <i class="fas fa-align-left mr-2"></i>Description
-                                </h6>
-                                
                                 <div class="form-group">
-                                    <label>Vehicle Description</label>
-                                    <textarea class="form-control" name="description" id="editDescription" rows="8"></textarea>
+                                    <label>Description</label>
+                                    <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-warning mb-3"><i class="fas fa-images mr-2"></i>Images</h6>
+                                <div class="mb-3">
+                                    <label>Current Images</label>
+                                    <div id="currentImagesContainer" class="image-preview-container"></div>
+                                    <small class="form-text text-muted">Star = main image, X = remove</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Add New Images</label>
+                                    <input type="file" class="form-control-file" id="editVehicleImages" accept="image/*" multiple>
+                                </div>
+                                <div id="newImagesPreviewContainer" class="image-preview-container"></div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            <i class="fas fa-times mr-2"></i>Cancel
-                        </button>
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-save mr-2"></i>Update Vehicle
-                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning"><i class="fas fa-save mr-2"></i>Update</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESERVATION DETAIL MODAL -->
+    <div class="modal fade" id="reservationDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-calendar-check mr-2"></i>Reservation Details</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body" id="reservationDetailBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -427,23 +481,33 @@
         </div>
     </div>
 
-    <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
     
     <script>
         /* ===============================================================
-           CONFIGURACIÓN Y VARIABLES GLOBALES
+           CONFIGURACIÓN GLOBAL
         ================================================================ */
-        const ADVISOR_ID = 4; // ⚠️ CAMBIAR ESTO: Usar employed_id de un asesor válido de tu BD
+        const ADVISOR_ID = 3;
         const API_URLS = {
             vehicles: 'backend-scripts/get_vehicles.php',
             addVehicle: 'backend-scripts/add_vehicle.php',
             updateVehicle: 'backend-scripts/update_vehicle.php',
-            advisorData: 'backend-scripts/get_advisor_data.php'
+            vehicleImages: 'backend-scripts/get_vehicle_images.php',
+            advisorData: 'backend-scripts/get_advisor_data.php',
+            // NUEVAS URLs para reservas
+            getReservations: 'backend-scripts/get_advisor_reservations.php',
+            updateReservationStatus: 'backend-scripts/update_reservation_status.php'
         };
 
         let selectedFiles = [];
+        let currentVehicleImages = [];
+        let deletedImageIds = [];
+        let newMainImageId = null;
+        let editNewFiles = [];
+        // Variables para reservas
+        let currentReservations = [];
+        let currentFilter = 'all';
 
         /* ===============================================================
            INICIALIZACIÓN
@@ -454,135 +518,279 @@
             setupImageUpload();
             setupFormSubmission();
             setupEditFormSubmission();
+            setupEditImageUpload();
+            // Nuevas funciones para reservas
+            setupReservationFilters();
+            setupTabEvents();
         });
 
         /* ===============================================================
-           CARGAR DATOS DEL ASESOR
+           TAB EVENTS
         ================================================================ */
-        function loadAdvisorData() {
-            // Cargar nombre real del asesor desde la BD
-            fetch(API_URLS.advisorData + '?advisor_id=' + ADVISOR_ID)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('advisorName').textContent = data.data.full_name;
-                    } else {
-                        document.getElementById('advisorName').textContent = 'Advisor #' + ADVISOR_ID;
-                    }
-                })
-                .catch(err => {
-                    console.error('Error loading advisor data:', err);
-                    document.getElementById('advisorName').textContent = 'Advisor #' + ADVISOR_ID;
-                });
-        }
-
-        /* ===============================================================
-           CARGAR VEHÍCULOS
-        ================================================================ */
-        function loadVehicles() {
-            const tbody = document.getElementById('vehiclesTableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="9" class="text-center py-4">
-                        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
-                        <p class="mt-2 text-muted">Loading vehicles...</p>
-                    </td>
-                </tr>
-            `;
-
-            fetch(API_URLS.vehicles)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success && data.data) {
-                        renderVehiclesTable(data.data);
-                        updateStats(data.data);
-                    } else {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="9" class="text-center py-4">
-                                    <i class="fas fa-info-circle fa-2x text-muted"></i>
-                                    <p class="mt-2 text-muted">No vehicles found</p>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                })
-                .catch(err => {
-                    console.error('Error loading vehicles:', err);
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="9" class="text-center py-4 text-danger">
-                                <i class="fas fa-exclamation-triangle fa-2x"></i>
-                                <p class="mt-2">Error loading vehicles</p>
-                            </td>
-                        </tr>
-                    `;
-                });
-        }
-
-        /* ===============================================================
-           RENDERIZAR TABLA DE VEHÍCULOS
-        ================================================================ */
-        function renderVehiclesTable(vehicles) {
-            const tbody = document.getElementById('vehiclesTableBody');
-            tbody.innerHTML = '';
-
-            vehicles.forEach(v => {
-                const statusClass = {
-                    'available': 'success',
-                    'reserved': 'warning',
-                    'sold': 'secondary',
-                    'unavailable': 'danger'
-                }[v.availability_status] || 'secondary';
-
-                const row = `
-                    <tr>
-                        <td><strong>#${v.vehicle_id}</strong></td>
-                        <td>
-                            <img src="${v.primary_image}" class="vehicle-img-thumb" alt="${v.brand} ${v.model}">
-                        </td>
-                        <td>${v.brand}</td>
-                        <td>${v.model}</td>
-                        <td>${v.year}</td>
-                        <td>${v.color}</td>
-                        <td><strong>${new Intl.NumberFormat('es-CO').format(v.price)}</strong></td>
-                        <td>
-                            <span class="badge badge-${statusClass} badge-status">
-                                ${v.availability}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-warning mr-1" onclick="openEditVehicleModal(${v.vehicle_id})" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <a href="detail.html?vehicle_id=${v.vehicle_id}" class="btn btn-sm btn-outline-primary" target="_blank" title="View">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
+        function setupTabEvents() {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                if (e.target.getAttribute('href') === '#reservationsTab') {
+                    loadReservations();
+                }
             });
         }
 
         /* ===============================================================
-           ACTUALIZAR ESTADÍSTICAS
+           RESERVATION FILTERS
         ================================================================ */
-        function updateStats(vehicles) {
-            const total = vehicles.length;
-            const available = vehicles.filter(v => v.availability_status === 'available').length;
-            const reserved = vehicles.filter(v => v.availability_status === 'reserved').length;
-            const unavailable = vehicles.filter(v => v.availability_status === 'unavailable').length;
-
-            document.getElementById('totalVehicles').textContent = total;
-            document.getElementById('availableVehicles').textContent = available;
-            document.getElementById('reservedVehicles').textContent = reserved;
-            document.getElementById('unavailableVehicles').textContent = unavailable;
+        function setupReservationFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.status;
+                    loadReservations(currentFilter);
+                });
+            });
         }
 
         /* ===============================================================
-           ABRIR MODAL DE AGREGAR VEHÍCULO
+           LOAD RESERVATIONS
         ================================================================ */
+        function loadReservations(status = 'all') {
+            const container = document.getElementById('reservationsContainer');
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                    <p class="mt-2 text-muted">Loading reservations...</p>
+                </div>
+            `;
+
+            let url = `${API_URLS.getReservations}?advisor_id=${ADVISOR_ID}`;
+            if (status && status !== 'all') url += `&status=${status}`;
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        currentReservations = data.data;
+                        renderReservations(data.data);
+                        updateReservationStats(data.stats);
+                        document.getElementById('reservationsBadge').textContent = data.stats.pending || 0;
+                    } else {
+                        container.innerHTML = `<div class="text-center py-5 text-danger">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            <p class="mt-2">${data.message}</p></div>`;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    container.innerHTML = `<div class="text-center py-5 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <p class="mt-2">Error loading reservations</p></div>`;
+                });
+        }
+
+        function renderReservations(reservations) {
+            const container = document.getElementById('reservationsContainer');
+            if (reservations.length === 0) {
+                container.innerHTML = `<div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted"></i>
+                    <h5 class="mt-3 text-muted">No reservations found</h5></div>`;
+                return;
+            }
+            container.innerHTML = reservations.map(r => `
+                <div class="reservation-card">
+                    <div class="reservation-header">
+                        <div>
+                            <strong>#${r.transaction_id}</strong>
+                            <span class="text-muted ml-3"><i class="fas fa-calendar-plus"></i> ${formatDate(r.creation_date)}</span>
+                        </div>
+                        <span class="status-badge status-${r.status}">${r.status_label}</span>
+                    </div>
+                    <div class="reservation-body">
+                        <img src="${r.vehicle.image}" class="reservation-vehicle-img" alt="Vehicle">
+                        <div class="reservation-info">
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <div class="info-label">Vehicle</div>
+                                    <strong>${r.vehicle.brand} ${r.vehicle.model}</strong>
+                                    <div class="text-muted">${r.vehicle.year} - ${r.vehicle.color}</div>
+                                    <div class="text-primary font-weight-bold">${formatNumber(r.vehicle.price)}</div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <div class="info-label">Customer</div>
+                                    <strong>${r.customer.name}</strong>
+                                    <div><i class="fas fa-phone text-muted"></i> ${r.customer.phone || 'N/A'}</div>
+                                    <div><i class="fas fa-id-card text-muted"></i> ${r.customer.id_number || 'N/A'}</div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <div class="info-label">Appointment</div>
+                                    <strong><i class="fas fa-calendar"></i> ${formatDate(r.appointment_date)}</strong>
+                                    <div><i class="fas fa-clock"></i> ${formatTime(r.appointment_time)}</div>
+                                    <div class="text-success font-weight-bold">Fee: ${formatNumber(r.reservation_price)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reservation-actions">
+                        ${getActionButtons(r)}
+                        <button class="btn btn-outline-info btn-sm ml-auto" onclick="showReservationDetail(${r.transaction_id})">
+                            <i class="fas fa-eye mr-1"></i> Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getActionButtons(r) {
+            const s = r.status;
+            if (s === 'pending') return `
+                <button class="btn btn-info btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'confirmed')"><i class="fas fa-check mr-1"></i>Confirm</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'cancelled')"><i class="fas fa-times mr-1"></i>Cancel</button>`;
+            if (s === 'approved') return `
+                <button class="btn btn-info btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'confirmed')"><i class="fas fa-check mr-1"></i>Confirm</button>
+                <button class="btn btn-success btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'completed')"><i class="fas fa-check-double mr-1"></i>Complete</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'cancelled')"><i class="fas fa-times mr-1"></i>Cancel</button>`;
+            if (s === 'confirmed') return `
+                <button class="btn btn-success btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'completed')"><i class="fas fa-check-double mr-1"></i>Complete</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="updateReservationStatus(${r.transaction_id}, 'cancelled')"><i class="fas fa-times mr-1"></i>Cancel</button>`;
+            return `<span class="text-muted"><i class="fas fa-lock mr-1"></i>No actions</span>`;
+        }
+
+        function updateReservationStatus(id, newStatus) {
+            const labels = { confirmed: 'confirm', completed: 'mark as completed', cancelled: 'cancel' };
+            Swal.fire({
+                title: `${labels[newStatus].charAt(0).toUpperCase() + labels[newStatus].slice(1)} Reservation?`,
+                icon: newStatus === 'cancelled' ? 'warning' : 'question',
+                showCancelButton: true,
+                confirmButtonColor: newStatus === 'cancelled' ? '#dc3545' : '#007bff',
+                confirmButtonText: `Yes, ${labels[newStatus]}`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    const formData = new FormData();
+                    formData.append('transaction_id', id);
+                    formData.append('status', newStatus);
+                    formData.append('advisor_id', ADVISOR_ID);
+                    fetch(API_URLS.updateReservationStatus, { method: 'POST', body: formData })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({ icon: 'success', title: 'Updated!', timer: 1500, showConfirmButton: false })
+                                    .then(() => loadReservations(currentFilter));
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                            }
+                        })
+                        .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Connection error' }));
+                }
+            });
+        }
+
+        function showReservationDetail(id) {
+            const r = currentReservations.find(res => res.transaction_id === id);
+            if (!r) return;
+            document.getElementById('reservationDetailBody').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary"><i class="fas fa-car mr-2"></i>Vehicle</h6>
+                        <img src="${r.vehicle.image}" class="img-fluid rounded mb-3" style="max-height:180px">
+                        <table class="table table-sm">
+                            <tr><td><strong>Brand:</strong></td><td>${r.vehicle.brand}</td></tr>
+                            <tr><td><strong>Model:</strong></td><td>${r.vehicle.model}</td></tr>
+                            <tr><td><strong>Year:</strong></td><td>${r.vehicle.year}</td></tr>
+                            <tr><td><strong>Color:</strong></td><td>${r.vehicle.color}</td></tr>
+                            <tr><td><strong>Price:</strong></td><td class="text-primary">${formatNumber(r.vehicle.price)}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="fas fa-user mr-2"></i>Customer</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Name:</strong></td><td>${r.customer.name}</td></tr>
+                            <tr><td><strong>ID:</strong></td><td>${r.customer.id_number || 'N/A'}</td></tr>
+                            <tr><td><strong>Phone:</strong></td><td>${r.customer.phone || 'N/A'}</td></tr>
+                        </table>
+                        <h6 class="text-warning mt-3"><i class="fas fa-calendar-alt mr-2"></i>Appointment</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Date:</strong></td><td>${formatDate(r.appointment_date)}</td></tr>
+                            <tr><td><strong>Time:</strong></td><td>${formatTime(r.appointment_time)}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td><span class="status-badge status-${r.status}">${r.status_label}</span></td></tr>
+                            <tr><td><strong>Fee:</strong></td><td class="text-success">${formatNumber(r.reservation_price)}</td></tr>
+                        </table>
+                    </div>
+                </div>`;
+            $('#reservationDetailModal').modal('show');
+        }
+
+        function updateReservationStats(stats) {
+            document.getElementById('statPending').textContent = stats.pending || 0;
+            document.getElementById('statApproved').textContent = stats.approved || 0;
+            document.getElementById('statConfirmed').textContent = stats.confirmed || 0;
+            document.getElementById('statCompleted').textContent = stats.completed || 0;
+            document.getElementById('statCancelled').textContent = stats.cancelled || 0;
+            document.getElementById('statTotal').textContent = stats.total || 0;
+        }
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        function formatTime(t) {
+            if (!t) return 'N/A';
+            const [h, m] = t.split(':');
+            const hr = parseInt(h);
+            return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+        }
+        function formatNumber(n) { return new Intl.NumberFormat('es-CO').format(n); }
+
+        /* ===============================================================
+           ADVISOR DATA
+        ================================================================ */
+        function loadAdvisorData() {
+            fetch(API_URLS.advisorData + '?advisor_id=' + ADVISOR_ID)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('advisorName').textContent = data.success ? data.data.full_name : 'Advisor #' + ADVISOR_ID;
+                })
+                .catch(() => { document.getElementById('advisorName').textContent = 'Advisor #' + ADVISOR_ID; });
+        }
+
+        /* ===============================================================
+           VEHICLES FUNCTIONS
+        ================================================================ */
+        function loadVehicles() {
+            const tbody = document.getElementById('vehiclesTableBody');
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Loading...</p></td></tr>`;
+            fetch(API_URLS.vehicles)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.data) { renderVehiclesTable(data.data); updateStats(data.data); }
+                    else { tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No vehicles found</td></tr>`; }
+                })
+                .catch(() => { tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">Error loading vehicles</td></tr>`; });
+        }
+
+        function renderVehiclesTable(vehicles) {
+            const tbody = document.getElementById('vehiclesTableBody');
+            tbody.innerHTML = vehicles.map(v => {
+                const cls = { available: 'success', reserved: 'warning', sold: 'secondary', unavailable: 'danger' }[v.availability_status] || 'secondary';
+                return `<tr>
+                    <td><strong>#${v.vehicle_id}</strong></td>
+                    <td><img src="${v.primary_image}" class="vehicle-img-thumb" alt="${v.brand}"></td>
+                    <td>${v.brand}</td><td>${v.model}</td><td>${v.year}</td><td>${v.color}</td>
+                    <td><strong>${formatNumber(v.price)}</strong></td>
+                    <td><span class="badge badge-${cls} badge-status">${v.availability}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning mr-1" onclick="openEditVehicleModal(${v.vehicle_id})"><i class="fas fa-edit"></i></button>
+                        <a href="detail.html?vehicle_id=${v.vehicle_id}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-eye"></i></a>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateStats(vehicles) {
+            document.getElementById('totalVehicles').textContent = vehicles.length;
+            document.getElementById('availableVehicles').textContent = vehicles.filter(v => v.availability_status === 'available').length;
+            document.getElementById('reservedVehicles').textContent = vehicles.filter(v => v.availability_status === 'reserved').length;
+            document.getElementById('unavailableVehicles').textContent = vehicles.filter(v => v.availability_status === 'unavailable').length;
+        }
+
         function openAddVehicleModal() {
             $('#addVehicleModal').modal('show');
             document.getElementById('addVehicleForm').reset();
@@ -590,166 +798,68 @@
             document.getElementById('imagePreviewContainer').innerHTML = '';
         }
 
-        /* ===============================================================
-           CONFIGURAR SUBIDA DE IMÁGENES
-        ================================================================ */
         function setupImageUpload() {
-            const fileInput = document.getElementById('vehicleImages');
-            
-            fileInput.addEventListener('change', function(e) {
+            document.getElementById('vehicleImages').addEventListener('change', function(e) {
                 const files = Array.from(e.target.files);
-                
-                if (files.length > 5) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Too Many Images',
-                        text: 'Maximum 5 images allowed. Only first 5 will be used.',
-                    });
-                    selectedFiles = files.slice(0, 5);
-                } else {
-                    selectedFiles = files;
-                }
-                
+                if (files.length > 5) { Swal.fire({ icon: 'warning', title: 'Max 5 images', text: 'Only first 5 will be used.' }); }
+                selectedFiles = files.slice(0, 5);
                 displayImagePreviews();
             });
         }
 
-        /* ===============================================================
-           MOSTRAR PREVISUALIZACIONES DE IMÁGENES
-        ================================================================ */
         function displayImagePreviews() {
             const container = document.getElementById('imagePreviewContainer');
             container.innerHTML = '';
-
-            selectedFiles.forEach((file, index) => {
+            selectedFiles.forEach((file, i) => {
                 const reader = new FileReader();
-                
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     const div = document.createElement('div');
                     div.className = 'image-preview-item';
-                    
-                    div.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview ${index + 1}">
-                        ${index === 0 ? '<span class="main-badge">MAIN</span>' : ''}
-                        <div class="remove-image" onclick="removeImage(${index})">
-                            <i class="fas fa-times"></i>
-                        </div>
-                    `;
-                    
+                    div.innerHTML = `<img src="${e.target.result}">
+                        ${i === 0 ? '<span class="main-badge">MAIN</span>' : ''}
+                        <div class="remove-image" onclick="removeImage(${i})"><i class="fas fa-times"></i></div>`;
                     container.appendChild(div);
                 };
-                
                 reader.readAsDataURL(file);
             });
         }
 
-        /* ===============================================================
-           REMOVER IMAGEN
-        ================================================================ */
-        function removeImage(index) {
-            selectedFiles.splice(index, 1);
+        function removeImage(i) {
+            selectedFiles.splice(i, 1);
             displayImagePreviews();
-            
-            // Actualizar el input file
             const dt = new DataTransfer();
-            selectedFiles.forEach(file => dt.items.add(file));
+            selectedFiles.forEach(f => dt.items.add(f));
             document.getElementById('vehicleImages').files = dt.files;
         }
 
-        /* ===============================================================
-           CONFIGURAR ENVÍO DEL FORMULARIO
-        ================================================================ */
         function setupFormSubmission() {
             document.getElementById('addVehicleForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-
-                if (selectedFiles.length === 0) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Images Required',
-                        text: 'Please upload at least one image for the vehicle.',
-                    });
-                    return;
-                }
-
+                if (selectedFiles.length === 0) { Swal.fire({ icon: 'warning', title: 'Images Required' }); return; }
                 const formData = new FormData(this);
                 formData.append('advisor_id', ADVISOR_ID);
-                
-                // Agregar imágenes
-                selectedFiles.forEach((file, index) => {
-                    formData.append('images[]', file);
-                    formData.append('is_main[]', index === 0 ? '1' : '0');
-                });
-
-                // Mostrar loading
-                Swal.fire({
-                    title: 'Adding Vehicle...',
-                    html: 'Please wait while we save the vehicle data.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                fetch(API_URLS.addVehicle, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Vehicle Added!',
-                            text: 'The vehicle has been successfully added to the catalog.',
-                            confirmButtonColor: '#007bff'
-                        }).then(() => {
-                            $('#addVehicleModal').modal('hide');
-                            loadVehicles();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'Could not add vehicle. Please try again.',
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Connection Error',
-                        text: 'Could not connect to server. Please check your connection.',
-                    });
-                });
+                selectedFiles.forEach((f, i) => { formData.append('images[]', f); formData.append('is_main[]', i === 0 ? '1' : '0'); });
+                Swal.fire({ title: 'Adding...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                fetch(API_URLS.addVehicle, { method: 'POST', body: formData })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({ icon: 'success', title: 'Vehicle Added!' }).then(() => { $('#addVehicleModal').modal('hide'); loadVehicles(); });
+                        } else { Swal.fire({ icon: 'error', title: 'Error', text: data.message }); }
+                    })
+                    .catch(() => Swal.fire({ icon: 'error', title: 'Connection Error' }));
             });
         }
 
-        /* ===============================================================
-           ABRIR MODAL DE EDITAR VEHÍCULO
-        ================================================================ */
         function openEditVehicleModal(vehicleId) {
-            // Mostrar loading
-            Swal.fire({
-                title: 'Loading...',
-                html: 'Please wait',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Obtener datos del vehículo
+            currentVehicleImages = []; deletedImageIds = []; newMainImageId = null; editNewFiles = [];
+            Swal.fire({ title: 'Loading...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             fetch(`backend-scripts/get_vehicle_detail.php?vehicle_id=${vehicleId}`)
                 .then(r => r.json())
                 .then(data => {
                     Swal.close();
-                    
                     if (data.success && data.data) {
                         const v = data.data;
-                        
-                        // Llenar formulario
                         document.getElementById('editVehicleId').value = v.vehicle_id;
                         document.getElementById('editBrand').value = v.brand;
                         document.getElementById('editModel').value = v.model;
@@ -757,118 +867,129 @@
                         document.getElementById('editColor').value = v.color;
                         document.getElementById('editPrice').value = v.price;
                         document.getElementById('editDescription').value = v.description || '';
-                        
-                        // Mapear availability correctamente
-                        const availabilityMap = {
-                            'Available': 'available',
-                            'Reserved': 'reserved',
-                            'Sold': 'sold',
-                            'Unavailable': 'unavailable',
-                            'In Maintenance': 'unavailable'
-                        };
-                        
-                        const availabilityValue = availabilityMap[v.availability] || v.availability.toLowerCase();
-                        document.getElementById('editAvailability').value = availabilityValue;
-                        
-                        // Mostrar modal
+                        const map = { 'Available': 'available', 'Reserved': 'reserved', 'Sold': 'sold', 'Unavailable': 'unavailable', 'In Maintenance': 'unavailable' };
+                        document.getElementById('editAvailability').value = map[v.availability] || v.availability.toLowerCase();
+                        loadVehicleImages(v.vehicle_id);
+                        document.getElementById('editVehicleImages').value = '';
+                        document.getElementById('newImagesPreviewContainer').innerHTML = '';
                         $('#editVehicleModal').modal('show');
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Could not load vehicle data'
-                        });
-                    }
+                    } else { Swal.fire({ icon: 'error', title: 'Error loading vehicle' }); }
                 })
-                .catch(err => {
-                    Swal.close();
-                    console.error('Error loading vehicle:', err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Could not connect to server'
-                    });
-                });
+                .catch(() => { Swal.close(); Swal.fire({ icon: 'error', title: 'Connection error' }); });
         }
 
-        /* ===============================================================
-           CONFIGURAR ENVÍO DEL FORMULARIO DE EDICIÓN
-        ================================================================ */
-        function setupEditFormSubmission() {
-            document.getElementById('editVehicleForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-                formData.append('advisor_id', ADVISOR_ID);
-
-                // Mostrar loading
-                Swal.fire({
-                    title: 'Updating Vehicle...',
-                    html: 'Please wait',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                fetch('backend-scripts/update_vehicle.php', {
-                    method: 'POST',
-                    body: formData
-                })
+        function loadVehicleImages(vehicleId) {
+            const container = document.getElementById('currentImagesContainer');
+            container.innerHTML = '<p class="text-muted">Loading...</p>';
+            fetch(`${API_URLS.vehicleImages}?vehicle_id=${vehicleId}`)
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Vehicle Updated!',
-                            text: 'The vehicle has been successfully updated.',
-                            confirmButtonColor: '#007bff'
-                        }).then(() => {
-                            $('#editVehicleModal').modal('hide');
-                            loadVehicles();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'Could not update vehicle'
-                        });
-                    }
+                    if (data.success && data.data?.length) { currentVehicleImages = data.data; displayCurrentImages(); }
+                    else { container.innerHTML = '<p class="text-muted">No images</p>'; }
                 })
-                .catch(err => {
-                    console.error('Error:', err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Connection Error',
-                        text: 'Could not connect to server'
-                    });
-                });
+                .catch(() => { container.innerHTML = '<p class="text-danger">Error</p>'; });
+        }
+
+        function displayCurrentImages() {
+            const container = document.getElementById('currentImagesContainer');
+            const active = currentVehicleImages.filter(img => !deletedImageIds.includes(img.image_id));
+            if (!active.length) { container.innerHTML = '<p class="text-muted">No images</p>'; return; }
+            container.innerHTML = active.map(img => {
+                const isMain = newMainImageId ? img.image_id === newMainImageId : img.is_main == 1;
+                return `<div class="image-preview-item">
+                    <img src="${img.image_url}">
+                    ${isMain ? '<span class="main-badge">MAIN</span>' : ''}
+                    <div class="remove-image" onclick="markImageForDeletion(${img.image_id})"><i class="fas fa-times"></i></div>
+                    <div class="set-main-btn ${isMain ? 'active' : ''}" onclick="setMainImage(${img.image_id})"><i class="fas fa-star"></i></div>
+                </div>`;
+            }).join('');
+        }
+
+        function markImageForDeletion(imageId) {
+            const active = currentVehicleImages.filter(img => !deletedImageIds.includes(img.image_id));
+            if (active.length <= 1) { Swal.fire({ icon: 'warning', title: 'Cannot delete', text: 'At least one image required' }); return; }
+            Swal.fire({ title: 'Delete?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Yes' }).then(r => {
+                if (r.isConfirmed) {
+                    deletedImageIds.push(imageId);
+                    const img = currentVehicleImages.find(i => i.image_id === imageId);
+                    if (img && (img.is_main == 1 || newMainImageId === imageId)) {
+                        const remaining = currentVehicleImages.find(i => !deletedImageIds.includes(i.image_id));
+                        if (remaining) newMainImageId = remaining.image_id;
+                    }
+                    document.getElementById('deletedImages').value = deletedImageIds.join(',');
+                    displayCurrentImages();
+                }
             });
         }
 
-        /* ===============================================================
-           CERRAR SESIÓN
-        ================================================================ */
-        function logout() {
-            Swal.fire({
-                title: 'Logout',
-                text: 'Are you sure you want to logout?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, logout',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Cuando tengan el sistema de sesiones real, hacer:
-                    // fetch('backend-scripts/logout.php').then(() => {
-                    //     window.location.href = 'index.html';
-                    // });
-                    
-                    // Por ahora solo redirigir
-                    window.location.href = 'index.html';
+        function setMainImage(imageId) {
+            newMainImageId = imageId;
+            document.getElementById('mainImageId').value = imageId;
+            displayCurrentImages();
+            Swal.fire({ icon: 'success', title: 'Main image set', timer: 1200, showConfirmButton: false });
+        }
+
+        function setupEditImageUpload() {
+            document.getElementById('editVehicleImages').addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                const currentCount = currentVehicleImages.length - deletedImageIds.length;
+                if (currentCount + files.length > 5) {
+                    Swal.fire({ icon: 'warning', title: 'Too many', text: `Max 5 images. You have ${currentCount}.` });
+                    this.value = ''; return;
                 }
+                editNewFiles = files;
+                displayNewImagesPreviews();
+            });
+        }
+
+        function displayNewImagesPreviews() {
+            const container = document.getElementById('newImagesPreviewContainer');
+            container.innerHTML = '';
+            editNewFiles.forEach((file, i) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'image-preview-item';
+                    div.innerHTML = `<img src="${e.target.result}">
+                        <span class="badge badge-info" style="position:absolute;top:5px;left:5px">NEW</span>
+                        <div class="remove-image" onclick="removeNewEditImage(${i})"><i class="fas fa-times"></i></div>`;
+                    container.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeNewEditImage(i) {
+            editNewFiles.splice(i, 1);
+            displayNewImagesPreviews();
+            const dt = new DataTransfer();
+            editNewFiles.forEach(f => dt.items.add(f));
+            document.getElementById('editVehicleImages').files = dt.files;
+        }
+
+        function setupEditFormSubmission() {
+            document.getElementById('editVehicleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const remaining = currentVehicleImages.length - deletedImageIds.length + editNewFiles.length;
+                if (remaining === 0) { Swal.fire({ icon: 'warning', title: 'At least one image required' }); return; }
+                const formData = new FormData(this);
+                formData.append('advisor_id', ADVISOR_ID);
+                editNewFiles.forEach(f => formData.append('new_images[]', f));
+                Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                fetch('backend-scripts/update_vehicle.php', { method: 'POST', body: formData })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({ icon: 'success', title: 'Updated!' }).then(() => { $('#editVehicleModal').modal('hide'); loadVehicles(); });
+                        } else { Swal.fire({ icon: 'error', title: 'Error', text: data.message }); }
+                    })
+                    .catch(() => Swal.fire({ icon: 'error', title: 'Connection error' }));
+            });
+        }
+
+        function logout() {
+            Swal.fire({ title: 'Logout?', icon: 'question', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Yes' }).then(r => {
+                if (r.isConfirmed) window.location.href = 'index.html';
             });
         }
     </script>
