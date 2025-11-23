@@ -3,7 +3,7 @@
 
 // Incluye la función de conexión a la BD (db.php)
 // Nota: La ruta es relativa al db.php, que está en el mismo directorio.
-require_once 'conexion.php';
+require_once './conexion.php';
 
 // 1. Verifica que los datos del formulario hayan sido enviados por POST
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {

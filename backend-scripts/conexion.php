@@ -1,4 +1,3 @@
-
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -30,7 +29,5 @@ function getDbConnection() {
    throw new Exception("Error de conexión a la base de datos");
     }
 } 
-// El archivo debe terminar aquí
+
 ?>
-
-
