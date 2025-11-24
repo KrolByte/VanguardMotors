@@ -1,5 +1,16 @@
 <?php
-include 'conexion.php';
+// 1. Incluye el archivo que contiene la función de conexión (getDbConnection)
+// Usamos la ruta simple, asumiendo que ambos están en la misma carpeta o que ya moviste conexion.php
+require_once './conexion.php'; 
+
+// 2. Llama a la función para obtener la conexión y la guarda en $conexion
+try {
+    $conexion = getDbConnection();
+} catch (Exception $e) {
+    // Si la conexión falla, detenemos la ejecución y mostramos el error antes de la tabla
+    die("Error al cargar la página: " . htmlspecialchars($e->getMessage()));
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">

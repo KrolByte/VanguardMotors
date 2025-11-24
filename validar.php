@@ -14,13 +14,33 @@ $stmt = $conn->prepare($sql);
 $stmt->execute([':email' => $email]);
 $user = $stmt->fetch();
 
-// Comparación directa porque NO tienes hashes reales
+// Comparación directa porque NO usas hashes reales
 if ($user && $password === $user['password_hash']) {
 
     session_start();
     $_SESSION['email'] = $user['email'];
+    $_SESSION['role']  = $user['role'];  // 👈 guardamos el rol
 
-    header("Location: index_users.php");
+    // 🚀 REDIRECCIÓN SEGÚN ROL
+    switch ($user['role']) {
+
+        case 'advisor':
+            header("Location: advisor.html");
+            break;
+
+        case 'manager':
+            header("Location: aprobar_gerente.php");
+            break;
+
+        case 'person':
+            header("Location: index_users.php");
+            break;
+
+        default:
+            header("Location: Login.php?error=invalid");
+            break;
+    }
+
     exit;
 
 } else {
