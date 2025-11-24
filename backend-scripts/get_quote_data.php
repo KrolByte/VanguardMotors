@@ -2,8 +2,8 @@
 // Archivo: backend-scripts/get_quote_data.php
 // Propósito: Obtener datos del vehículo y usuario para pre-llenar el formulario de cotización
 
+session_start();
 require_once 'db.php';
-require_once '../env_loader.php';
 
 header('Content-Type: application/json');
 
@@ -24,13 +24,12 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         // ==========================================================
         // 1. OBTENER DATOS DEL VEHÍCULO
         // ==========================================================
-        $sql_vehicle = "SELECT vehicle_id, brand, model, year, color, price, description, 
-                               availability, image_path
+        $sql_vehicle = "SELECT vehicle_id, brand, model, year, color, price, description, availability
                         FROM vehicle 
-                        WHERE vehicle_id = :vehicle_id";
+                        WHERE vehicle_id = ?";
         
         $stmt_vehicle = $pdo->prepare($sql_vehicle);
-        $stmt_vehicle->execute([':vehicle_id' => $vehicle_id]);
+        $stmt_vehicle->execute([$vehicle_id]);
         $vehicle = $stmt_vehicle->fetch(PDO::FETCH_ASSOC);
 
         if (!$vehicle) {
@@ -41,40 +40,71 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             ]));
         }
 
+        // ✅ VERIFICAR DISPONIBILIDAD
+        $is_available = ($vehicle['availability'] === 'available');
+
         // ==========================================================
-        // 2. OBTENER DATOS DEL USUARIO AUTENTICADO (si aplica)
+        // 2. OBTENER IMAGEN PRINCIPAL DEL VEHÍCULO
+        // ==========================================================
+        $sql_image = "SELECT image_url 
+                      FROM vehicle_image 
+                      WHERE vehicle_id = ? AND is_main = TRUE 
+                      LIMIT 1";
+        
+        $stmt_image = $pdo->prepare($sql_image);
+        $stmt_image->execute([$vehicle_id]);
+        $main_image_row = $stmt_image->fetch(PDO::FETCH_ASSOC);
+        $main_image = $main_image_row ? $main_image_row['image_url'] : null;
+        
+        // Si no hay imagen principal, obtener la primera disponible
+        if (!$main_image) {
+            $sql_any_image = "SELECT image_url FROM vehicle_image WHERE vehicle_id = ? ORDER BY image_id LIMIT 1";
+            $stmt_any = $pdo->prepare($sql_any_image);
+            $stmt_any->execute([$vehicle_id]);
+            $any_image_row = $stmt_any->fetch(PDO::FETCH_ASSOC);
+            $main_image = $any_image_row ? $any_image_row['image_url'] : null;
+        }
+
+        // Normalizar ruta de imagen
+        $image_url = normalizeImageUrl($main_image);
+
+        // ==========================================================
+        // 3. OBTENER DATOS DEL USUARIO
         // ==========================================================
         $person = null;
+        $test_person_id = 1;
         
-        // Si tienes un sistema de sesiones, descomenta esto:
-        // session_start();
-        // if (isset($_SESSION['user_id'])) {
-        //     $sql_person = "SELECT person_id, identification_number, full_name, phone_number, email
-        //                    FROM person 
-        //                    WHERE person_id = :person_id";
-        //     
-        //     $stmt_person = $pdo->prepare($sql_person);
-        //     $stmt_person->execute([':person_id' => $_SESSION['user_id']]);
-        //     $person = $stmt_person->fetch(PDO::FETCH_ASSOC);
-        // }
-
-        // Por ahora, devolver estructura vacía para la persona
-        // El usuario la llenará manualmente o desde sesión
-        $person = [
-            'identification_number' => '',
-            'full_name' => '',
-            'phone_number' => '',
-            'email' => ''
-        ];
+        $person_id = $_SESSION['person_id'] ?? $test_person_id;
+        
+        if ($person_id) {
+            $sql_person = "SELECT p.person_id, p.identification_number, p.full_name, 
+                                  p.phone_number, u.email
+                           FROM person p
+                           JOIN users u ON p.user_id = u.user_id
+                           WHERE p.person_id = ?";
+            
+            $stmt_person = $pdo->prepare($sql_person);
+            $stmt_person->execute([$person_id]);
+            $person = $stmt_person->fetch(PDO::FETCH_ASSOC);
+        }
+        
+        if (!$person) {
+            $person = [
+                'identification_number' => '',
+                'full_name' => '',
+                'phone_number' => '',
+                'email' => ''
+            ];
+        }
 
         // ==========================================================
-        // 3. PREPARAR RESPUESTA
+        // 4. PREPARAR RESPUESTA
         // ==========================================================
         $availabilityMap = [
             'available' => 'Available',
             'sold' => 'Sold',
             'reserved' => 'Reserved',
-            'maintenance' => 'In Maintenance'
+            'unavailable' => 'Unavailable'
         ];
 
         http_response_code(200);
@@ -87,21 +117,32 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 'year' => $vehicle['year'],
                 'color' => $vehicle['color'],
                 'price' => $vehicle['price'],
-                'description' => $vehicle['description'],
+                'description' => $vehicle['description'] ?? 'High-performance vehicle with excellent features.',
                 'availability' => $availabilityMap[$vehicle['availability']] ?? ucfirst($vehicle['availability']),
-                'image' => $vehicle['image_path'] ? 'img/' . $vehicle['image_path'] : 'img/car-rent-6.png'
+                'availability_status' => $vehicle['availability'], // ✅ Estado real
+                'image' => $image_url,
+                'is_available' => $is_available // ✅ Bandera de disponibilidad
             ],
             'person' => $person,
-            'taxPercentage' => 19 // Ajusta según tu configuración
+            'taxPercentage' => 19
         ]);
 
-    } catch (Exception $e) {
-        error_log("Error al obtener datos de cotización: " . $e->getMessage());
+    } catch (PDOException $e) {
+        error_log("DB Error in get_quote_data: " . $e->getMessage());
         http_response_code(500);
         
         echo json_encode([
             'success' => false,
-            'message' => 'Error retrieving quote data: ' . $e->getMessage()
+            'message' => 'Database error: ' . $e->getMessage()
+        ]);
+        
+    } catch (Exception $e) {
+        error_log("Error in get_quote_data: " . $e->getMessage());
+        http_response_code(500);
+        
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error retrieving quote data'
         ]);
     }
 } else {
@@ -110,5 +151,34 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         'success' => false,
         'message' => 'Method not allowed'
     ]);
+}
+
+// =====================================================
+// FUNCIÓN PARA NORMALIZAR URLs DE IMÁGENES
+// =====================================================
+function normalizeImageUrl($image_url) {
+    if (!$image_url) {
+        return 'img/car-placeholder.png';
+    }
+    
+    // Si es una URL completa (http/https), devolverla tal cual
+    if (preg_match('/^https?:\/\//i', $image_url)) {
+        return $image_url;
+    }
+    
+    // Quitar el / inicial si existe
+    $cleaned = ltrim($image_url, '/');
+    
+    // Si ya tiene 'img/' al inicio, devolverla tal cual
+    if (strpos($cleaned, 'img/') === 0) {
+        return $cleaned;
+    }
+    
+    // Si no tiene 'img/' y no es una URL, agregarlo
+    if (!empty($cleaned)) {
+        return 'img/' . $cleaned;
+    }
+    
+    return 'img/car-placeholder.png';
 }
 ?>

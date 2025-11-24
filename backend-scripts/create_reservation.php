@@ -1,121 +1,160 @@
 <?php
-// Incluir la función de conexión a la BD
+session_start();
+header('Content-Type: application/json');
 require_once 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Simulación de sesión (reemplazar con login real)
+$TEST_PERSON_ID = 1;
+$person_id = $_SESSION['person_id'] ?? $TEST_PERSON_ID;
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(["success" => false, "message" => "Invalid method"]);
+    exit;
+}
+
+try {
+    $conn = getDbConnection();
+    $conn->beginTransaction();
+
+    // =====================================================
+    // 1. RECOLECTAR DATOS DEL FORMULARIO
+    // =====================================================
+    $vehicle_id       = (int)$_POST['vehicle_id'];
+    $advisor_id       = (int)$_POST['advisor_id'];
+    $appointment_date = $_POST['appointment_date'];
+    $appointment_time = $_POST['appointment_time'];
+    $customer_phone   = trim($_POST['customer_phone'] ?? '');
+    $payment_method   = $_POST['payment_method'];
     
-    // 1. Recolección y Limpieza de Datos del Formulario de Reserva
-    
-    // Datos de PERSON (Asumimos que vienen del formulario, aunque estén readonly/hidden)
-    $full_name          = trim($_POST['full_name']);
-    $identification_num = trim($_POST['identification_num']); 
-    $customer_email     = trim($_POST['customer_email']);
-    $customer_phone     = trim($_POST['customer_phone']);
-
-    // Datos de TRANSACTION (Cita y Asesor)
-    $vehicle_id         = trim($_POST['vehicle_id']);
-    $advisor_id         = trim($_POST['advisor_id']);
-    $appointment_date   = trim($_POST['appointment_date']);
-    $appointment_time   = trim($_POST['appointment_time']);
-    
-    // Datos de PAYMENT (Depósito y Método)
-    $reservation_price  = floatval(trim($_POST['reservation_price'])); // Debe ser 500.00
-    $payment_method     = trim($_POST['payment_method']);
-    
-    // Datos específicos del método de pago (para la simulación)
-    $proof_reference    = trim($_POST['proof_reference'] ?? ''); // Solo para transferencia
-    $card_number        = trim($_POST['card_number'] ?? '');    // Solo para tarjeta
-    
-    // Definir STATUS de la transacción basado en el método de pago
-    // Tarjeta (Simulada): Confirmada | Transferencia: Pendiente de verificación
-    $transaction_status = ($payment_method === 'card') ? 'CONFIRMED' : 'PENDING';
-
-    try {
-        // Obtener conexión a la base de datos
-        $pdo = getDbConnection();
-        
-        // Iniciar una transacción de DB para asegurar la atomicidad (ACID)
-        $pdo->beginTransaction();
-
-        // ==========================================================
-        // A. INSERCIÓN O BÚSQUEDA EN LA TABLA PERSON 
-        // (Asumimos que si la identificación existe, no se crea, pero aquí la creamos para simplificar)
-        // ==========================================================
-        $sql_person = "INSERT INTO PERSON (identification_num, full_name, phone_number, email) 
-                       VALUES (:identification_num, :full_name, :phone_number, :email) 
-                       ON CONFLICT (identification_num) DO NOTHING 
-                       RETURNING person_id";
-        
-        $stmt_person = $pdo->prepare($sql_person);
-        $stmt_person->execute([
-            ':identification_num' => $identification_num,
-            ':full_name' => $full_name,
-            ':phone_number' => $customer_phone,
-            ':email' => $customer_email
-        ]);
-        
-        // Si no se insertó (conflicto), buscamos el person_id existente
-        $person_id = $pdo->query("SELECT person_id FROM PERSON WHERE identification_num = '{$identification_num}'")->fetchColumn();
-        
-        
-        // ==========================================================
-        // B. INSERCIÓN EN LA TABLA TRANSACTION
-        // ==========================================================
-        $sql_transaction = "INSERT INTO TRANSACTION (person_id, vehicle_id, type_transaction, status, consulting_buys, pending_approved)
-                            VALUES (:person_id, :vehicle_id, 'reservation', :status, :appointment_time, :appointment_date)
-                            RETURNING transaction_id";
-                            
-        $stmt_transaction = $pdo->prepare($sql_transaction);
-        $stmt_transaction->execute([
-            ':person_id' => $person_id,
-            ':vehicle_id' => $vehicle_id,
-            ':status' => $transaction_status,
-            ':appointment_time' => $appointment_time,
-            ':appointment_date' => $appointment_date 
-        ]);
-
-        $transaction_id = $stmt_transaction->fetchColumn();
-
-        // ==========================================================
-        // C. INSERCIÓN EN LA TABLA PAYMENT (Solo si hay un depósito)
-        // ==========================================================
-        if ($reservation_price > 0) {
-            
-            // Determinar la referencia a guardar
-            $gateway_ref = ($payment_method === 'card') 
-                           ? uniqid('GATE_') // Simulación de ID de pasarela
-                           : $proof_reference; // Referencia dada por el usuario en transferencia
-
-            $sql_payment = "INSERT INTO PAYMENT (transaction_id, payment_reason, reservation_direct, amount_pay, payment_datetime)
-                            VALUES (:transaction_id, 'reservation', :method, :amount, NOW())";
-            
-            $stmt_payment = $pdo->prepare($sql_payment);
-            $stmt_payment->execute([
-                ':transaction_id' => $transaction_id,
-                ':method' => $payment_method, // Usamos el método como 'reservation_direct'
-                ':amount' => $reservation_price
-                // NOTA: La tabla PAYMENT no tiene campo para 'gateway_reference' visible en tu diagrama,
-                // por lo que se asume que 'reservation_direct' almacena el método o la referencia.
-            ]);
-        }
-        
-        // Confirmar la transacción si todas las inserciones fueron exitosas
-        $pdo->commit();
-        
-        // Redirigir a una página de confirmación con el ID de la transacción
-        header("Location: ../confirmation.html?trans_id={$transaction_id}");
-        exit();
-
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        error_log($e->getMessage()); // Registrar el error en el log
-        
-        // Redirigir a una página de error
-        header("Location: ../error.html?message=" . urlencode("Error al procesar la reserva."));
-        exit();
+    // Validaciones básicas
+    if ($vehicle_id <= 0 || $advisor_id <= 0) {
+        throw new Exception("Invalid vehicle or advisor ID");
     }
-} else {
-    header("Location: ../index.html");
-    exit();
+    
+    if (empty($appointment_date) || empty($appointment_time)) {
+        throw new Exception("Appointment date and time are required");
+    }
+    
+    // =====================================================
+    // 2. VERIFICAR DISPONIBILIDAD (evitar dobles reservas)
+    // =====================================================
+    $sql_check = "SELECT COUNT(*) FROM transaction 
+                  WHERE advisor_id = ? 
+                  AND appointment_date = ? 
+                  AND appointment_time = ?
+                  AND status IN ('pending')";
+    
+    $stmt_check = $conn->prepare($sql_check);
+    $stmt_check->execute([$advisor_id, $appointment_date, $appointment_time]);
+    
+    if ($stmt_check->fetchColumn() > 0) {
+        throw new Exception("This time slot is already booked. Please select another time.");
+    }
+    
+    // =====================================================
+    // 3. INSERTAR TRANSACCIÓN (consulting = asesoría)
+    // =====================================================
+    $reservation_price = 20000.00;
+    $status = 'pending';
+    
+    $sql_transaction = "INSERT INTO transaction 
+                        (type_transaction, status, creation_date, appointment_date, 
+                         appointment_time, reservation_price, vehicle_id, person_id, advisor_id)
+                        VALUES ('consulting', ?, CURRENT_DATE, ?, ?, ?, ?, ?, ?)
+                        RETURNING transaction_id";
+    
+    $stmt_transaction = $conn->prepare($sql_transaction);
+    $stmt_transaction->execute([
+        $status,
+        $appointment_date,
+        $appointment_time,
+        $reservation_price,
+        $vehicle_id,
+        $person_id,
+        $advisor_id
+    ]);
+    
+    $transaction_id = $stmt_transaction->fetchColumn();
+    
+    // =====================================================
+    // 4. INSERTAR PAGO
+    // =====================================================
+    $gateway_reference = null;
+    $card_number = null;
+    $issue_date = null;
+    $card_code = null;
+    $reference_number = null;
+    
+    if ($payment_method === 'card') {
+        // Pago con tarjeta
+        $gateway_reference = 'SIM_' . strtoupper(bin2hex(random_bytes(8)));
+        $card_number = isset($_POST['card_number']) ? substr(str_replace(' ', '', $_POST['card_number']), -4) : null;
+        $issue_date = $_POST['issue_date'] ?? null;
+        $card_code = $_POST['card_code'] ?? null;
+        
+    } else if ($payment_method === 'transfer') {
+        // Transferencia bancaria
+        $reference_number = $_POST['reference_number'] ?? null;
+    }
+    
+    $sql_payment = "INSERT INTO payment 
+                    (amount_pay, payment_datetime, gateway_reference, payment_method, 
+                     card_number, issue_date, card_code, reference_number, transaction_id)
+                    VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?)
+                    RETURNING payment_id";
+    
+    $stmt_payment = $conn->prepare($sql_payment);
+    $stmt_payment->execute([
+        $reservation_price,
+        $gateway_reference,
+        $payment_method,
+        $card_number,
+        $issue_date,
+        $card_code,
+        $reference_number,
+        $transaction_id
+    ]);
+    
+    $payment_id = $stmt_payment->fetchColumn();
+    
+    // =====================================================
+    // 5. ACTUALIZAR TELÉFONO DEL CLIENTE
+    // =====================================================
+    if (!empty($customer_phone)) {
+        $sql_update_phone = "UPDATE person SET phone_number = ? WHERE person_id = ?";
+        $stmt_phone = $conn->prepare($sql_update_phone);
+        $stmt_phone->execute([$customer_phone, $person_id]);
+    }
+    
+    // =====================================================
+    // 6. COMMIT Y RESPUESTA
+    // =====================================================
+    $conn->commit();
+    
+    echo json_encode([
+        "success" => true,
+        "message" => "Reservation created successfully!",
+        "transaction_id" => $transaction_id,
+        "payment_id" => $payment_id,
+        "status" => $status
+    ]);
+
+} catch (PDOException $e) {
+    if (isset($conn)) $conn->rollBack();
+    error_log("DB Error: " . $e->getMessage());
+    
+    echo json_encode([
+        "success" => false,
+        "message" => "Database error: " . $e->getMessage()
+    ]);
+    
+} catch (Exception $e) {
+    if (isset($conn)) $conn->rollBack();
+    error_log("Error: " . $e->getMessage());
+    
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
 }
 ?>
