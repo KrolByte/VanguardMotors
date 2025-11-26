@@ -118,7 +118,7 @@
 
 
     <div class="extra-links">
-      <p class="mt-3">Don’t have an account? <a href="register.html">Register here</a></p>
+      <p class="mt-3">Don’t have an account? <a href="../register.html">Register here</a></p>
       <p><a href="index.html">← Back to home</a></p>
     </div>
   </div>

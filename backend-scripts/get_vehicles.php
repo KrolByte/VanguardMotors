@@ -1,11 +1,7 @@
 <?php
-/**
- * Archivo: backend-scripts/get_vehicles.php
- * Propósito: Obtener lista de vehículos con sus imágenes desde la BD
- * Devuelve: JSON con array de vehículos
- */
 
-require_once 'db.php';
+
+require_once 'conexion.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -14,22 +10,31 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     try {
         $pdo = getDbConnection();
 
-        // Consulta SQL usando STRING_AGG para PostgreSQL
-        // NOTE: la columna de imágenes en la tabla es `image_url`
-        $sql_vehicles = "SELECT 
-                            v.vehicle_id,
-                            v.brand,
-                            v.model,
-                            v.year,
-                            v.color,
-                            v.price,
-                            v.availability,
-                            v.description,
-                            STRING_AGG(vi.image_url, ',') as images
-                        FROM vehicle v
-                        LEFT JOIN vehicle_image vi ON v.vehicle_id = vi.vehicle_id
-                        GROUP BY v.vehicle_id
-                        ORDER BY v.vehicle_id ASC";
+$sql_vehicles = "SELECT 
+    v.vehicle_id,
+    v.brand,
+    v.model,
+    v.year,
+    v.color,
+    v.price,
+    v.availability,
+    v.description,
+    STRING_AGG(vi.image_url, ',') as images
+FROM vehicle v
+LEFT JOIN vehicle_image vi ON v.vehicle_id = vi.vehicle_id
+
+
+GROUP BY 
+    v.vehicle_id, 
+    v.brand, 
+    v.model, 
+    v.year, 
+    v.color, 
+    v.price, 
+    v.availability, 
+    v.description 
+    
+ORDER BY v.vehicle_id ASC";
 
         $stmt = $pdo->prepare($sql_vehicles);
         $stmt->execute();
@@ -45,11 +50,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             exit;
         }
 
-        // Procesar imágenes y formatear respuesta
+       
         $formatted_vehicles = [];
         
         foreach ($vehicles as $vehicle) {
-            // Procesar imágenes (comma-separated)
+          
             $images = [];
             if (!empty($vehicle['images'])) {
                 $image_paths = explode(',', $vehicle['images']);
@@ -57,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                     $p = trim($path);
                     if ($p === '') continue;
 
-                    // Si es URL absoluta (http/https), dejarla tal cual
+                   
                     if (preg_match('#^https?://#i', $p)) {
                         $images[] = $p;
                         continue;
@@ -83,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 'sold' => 'Sold',
                 'reserved' => 'Reserved',
                 'unavailable' => 'Unavailable',
-                'maintenance' => 'maintenance' // Mapear maintenance antiguo a unavailable
+                'maintenance' => 'maintenance' 
             ];
 
             $formatted_vehicles[] = [
@@ -123,5 +128,5 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         'success' => false,
         'message' => 'Method not allowed'
     ]);
-}
-?>
+}?>
+

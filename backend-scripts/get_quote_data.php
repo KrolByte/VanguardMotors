@@ -3,7 +3,7 @@
 // Propósito: Obtener datos del vehículo y usuario para pre-llenar el formulario de cotización
 
 session_start();
-require_once 'db.php';
+require_once 'conexion.php';
 
 header('Content-Type: application/json');
 

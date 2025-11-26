@@ -1,5 +1,6 @@
 <?php
 require 'conexion.php';
+$conexion = getDbConnection();
 
 $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
@@ -10,7 +11,7 @@ if (empty($email) || empty($password)) {
 }
 
 $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
-$stmt = $conn->prepare($sql);
+$stmt = $conexion->prepare($sql);
 $stmt->execute([':email' => $email]);
 $user = $stmt->fetch();
 
@@ -25,11 +26,11 @@ if ($user && $password === $user['password_hash']) {
     switch ($user['role']) {
 
         case 'advisor':
-            header("Location: advisor.html");
+            header("Location: admin-dashboard.html");
             break;
 
         case 'manager':
-            header("Location: aprobar_gerente.php");
+            header("Location: approve_reservations.php");
             break;
 
         case 'person':

@@ -2,7 +2,7 @@
 // Archivo: backend-scripts/get_related_vehicles.php
 // Propósito: Obtener vehículos similares basados en marca, año y precio
 
-require_once 'db.php';
+require_once 'conexion.php';
 
 header('Content-Type: application/json');
 

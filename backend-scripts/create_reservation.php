@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-require_once 'db.php';
+require_once 'conexion.php';
 
 // Simulación de sesión (reemplazar con login real)
 $TEST_PERSON_ID = 1;

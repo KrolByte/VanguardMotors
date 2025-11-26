@@ -2,7 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/db.php'; 
+require_once __DIR__ . '/conexion.php'; 
 
 // ⚠️ SIMULACIÓN: ID de prueba para testing
 $test_person_id = 1;

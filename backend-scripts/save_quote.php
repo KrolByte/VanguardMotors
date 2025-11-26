@@ -3,7 +3,7 @@
 // Propósito: Guardar cotización y agendar cita automática
 
 session_start();
-require_once 'db.php';
+require_once 'conexion.php';
 
 header('Content-Type: application/json');
 
