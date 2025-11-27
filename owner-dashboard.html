@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Owner Dashboard - Vanguard Motors</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="img/favicon.ico" rel="icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rubik&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        .owner-header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            padding: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            height: 100%;
+            border-left: 4px solid;
+        }
+        .metric-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
+        .metric-card.blue { border-left-color: #2196F3; }
+        .metric-card.green { border-left-color: #4CAF50; }
+        .metric-card.orange { border-left-color: #FF9800; }
+        .metric-card.red { border-left-color: #F44336; }
+        .metric-card.purple { border-left-color: #9C27B0; }
+        .metric-icon {
+            font-size: 3rem;
+            opacity: 0.2;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        .nav-tabs-owner {
+            border-bottom: 3px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .nav-tabs-owner .nav-link {
+            color: #666;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 15px 25px;
+            font-weight: 500;
+            margin-bottom: -3px;
+        }
+        .nav-tabs-owner .nav-link.active {
+            color: #1a237e;
+            border-bottom-color: #1a237e;
+            background: transparent;
+        }
+        .table-compact { font-size: 0.9rem; }
+        .table-compact th { background: #f5f5f5; font-weight: 600; }
+        .badge-role {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .badge-advisor { background: #2196F3; color: white; }
+        .badge-manager { background: #FF9800; color: white; }
+        .badge-owner { background: #9C27B0; color: white; }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-completed { background: #cce5ff; color: #004085; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .performance-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.5s;
+        }
+        .vehicle-thumb {
+            width: 60px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .quick-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .quick-stat-item {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #2196F3;
+        }
+        .quick-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+        }
+        .quick-stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Owner Header -->
+    <div class="owner-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h2 class="text-white mb-0">
+                        <i class="fas fa-crown mr-2"></i>Owner Executive Dashboard
+                    </h2>
+                    <small class="text-white-50">Vanguard Motors - Complete Overview</small>
+                </div>
+                <div class="col-md-6 text-right">
+                    <div class="d-inline-flex align-items-center bg-dark px-4 py-2 rounded">
+                        <i class="fas fa-user-shield text-warning mr-2"></i>
+                        <span class="text-white" id="ownerName">Loading...</span>
+                        <span class="badge badge-warning ml-3">Owner</span>
+                    </div>
+                    <button class="btn btn-outline-danger ml-3" onclick="logout()">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                    <a href="index.html" class="btn btn-outline-light ml-2">
+                        <i class="fas fa-home mr-1"></i> Site
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Metrics -->
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card blue">
+                    <i class="fas fa-users metric-icon"></i>
+                    <div class="metric-label">Employees</div>
+                    <div class="metric-value" id="metricEmployees">0</div>
+                    <small class="text-muted">
+                        <span id="metricAdvisors">0</span> Advisors | 
+                        <span id="metricManagers">0</span> Managers
+                    </small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card green">
+                    <i class="fas fa-user-friends metric-icon"></i>
+                    <div class="metric-label">Customers</div>
+                    <div class="metric-value" id="metricCustomers">0</div>
+                    <small class="text-muted">Registered users</small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card orange">
+                    <i class="fas fa-car metric-icon"></i>
+                    <div class="metric-label">Vehicle Inventory</div>
+                    <div class="metric-value" id="metricVehicles">0</div>
+                    <small class="text-muted">
+                        <span id="metricAvailable">0</span> Available | 
+                        <span id="metricSold">0</span> Sold
+                    </small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card purple">
+                    <i class="fas fa-dollar-sign metric-icon"></i>
+                    <div class="metric-label">Total Revenue</div>
+                    <div class="metric-value" id="metricRevenue">$0</div>
+                    <small class="text-muted"><span id="metricSalesCount">0</span> vehicles sold</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Metrics -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-card">
+                    <div class="quick-stats">
+                        <div class="quick-stat-item">
+                            <div class="quick-stat-value" id="statPending">0</div>
+                            <div class="quick-stat-label">Pending Review</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <div class="quick-stat-value" id="statApproved">0</div>
+                            <div class="quick-stat-label">Approved</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <div class="quick-stat-value" id="statCompleted">0</div>
+                            <div class="quick-stat-label">Completed</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <div class="quick-stat-value" id="statRejected">0</div>
+                            <div class="quick-stat-label">Rejected</div>
+                        </div>
+                        <div class="quick-stat-item" style="border-left-color: #9C27B0;">
+                            <div class="quick-stat-value" id="statReservationFees">$0</div>
+                            <div class="quick-stat-label">Reservation Fees</div>
+                        </div>
+                        <div class="quick-stat-item" style="border-left-color: #FF9800;">
+                            <div class="quick-stat-value" id="statInventoryValue">$0</div>
+                            <div class="quick-stat-label">Inventory Value</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="container">
+        <ul class="nav nav-tabs nav-tabs-owner" id="ownerTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#overviewTab">
+                    <i class="fas fa-chart-line mr-2"></i>Overview
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#employeesTab">
+                    <i class="fas fa-users mr-2"></i>Employees
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#customersTab">
+                    <i class="fas fa-user-friends mr-2"></i>Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#reservationsTab">
+                    <i class="fas fa-calendar-check mr-2"></i>Reservations
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#salesTab">
+                    <i class="fas fa-money-bill-wave mr-2"></i>Sales
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- OVERVIEW TAB -->
+        <div class="tab-pane fade show active" id="overviewTab">
+            <div class="container mb-5">
+                <!-- Advisor Performance -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h5 class="section-title"><i class="fas fa-chart-bar mr-2"></i>Advisor Performance</h5>
+                    </div>
+                    <div id="advisorPerformanceContainer">
+                        <div class="text-center py-4">
+                            <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMPLOYEES TAB -->
+        <div class="tab-pane fade" id="employeesTab">
+            <div class="container mb-5">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h5 class="section-title"><i class="fas fa-users mr-2"></i>All Employees</h5>
+                        <button class="btn btn-primary btn-sm" onclick="loadDashboardData()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-compact">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Name</th><th>ID Number</th><th>Phone</th>
+                                    <th>Email</th><th>Role</th><th>Reservations</th><th>Completed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTableBody">
+                                <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUSTOMERS TAB -->
+        <div class="tab-pane fade" id="customersTab">
+            <div class="container mb-5">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h5 class="section-title"><i class="fas fa-user-friends mr-2"></i>Registered Customers (Last 50)</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-compact">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Name</th><th>ID Number</th><th>Phone</th>
+                                    <th>Email</th><th>Reservations</th><th>Last Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody">
+                                <tr><td colspan="7" class="text-center py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESERVATIONS TAB -->
+        <div class="tab-pane fade" id="reservationsTab">
+            <div class="container mb-5">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h5 class="section-title"><i class="fas fa-calendar-check mr-2"></i>Reservation History (Last 100)</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-compact">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Created</th><th>Appointment</th><th>Customer</th>
+                                    <th>Vehicle</th><th>Advisor</th><th>Status</th><th>Fee</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservationsTableBody">
+                                <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SALES TAB -->
+        <div class="tab-pane fade" id="salesTab">
+            <div class="container mb-5">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h5 class="section-title"><i class="fas fa-money-bill-wave mr-2"></i>Sales History</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-compact">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Image</th><th>Brand</th><th>Model</th>
+                                    <th>Year</th><th>Color</th><th>Price</th><th>Added By</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTableBody">
+                                <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid bg-secondary py-4 px-sm-3 px-md-5 mt-5">
+        <div class="row pt-4">
+            <div class="col-12 text-center">
+                <p class="mb-2 text-body">&copy; <a href="#">VanguardMotors</a>. All Rights Reserved.</p>
+                <p class="m-0 text-body">Designed by K2ES SD</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const USER_ID = 1; // ⚠️ user_id del owner (no employed_id)
+        const API_URL = 'backend-scripts/get_owner_dashboard_data.php';
+
+        let dashboardData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOwnerData();
+            loadDashboardData();
+        });
+
+        function loadOwnerData() {
+            // Obtener nombre del owner desde la tabla person
+            fetch(`backend-scripts/get_owner_info.php?user_id=${USER_ID}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('ownerName').textContent = 
+                        data.success ? data.data.full_name : 'Owner';
+                })
+                .catch(() => { document.getElementById('ownerName').textContent = 'Owner'; });
+        }
+
+        function loadDashboardData() {
+            Swal.fire({
+                title: 'Loading Dashboard...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch(`${API_URL}?user_id=${USER_ID}`)
+                .then(r => {
+                    // Verificar si la respuesta es JSON
+                    const contentType = r.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        return r.text().then(text => {
+                            console.error('Response is not JSON:', text);
+                            throw new Error('Server returned HTML instead of JSON. Check console for details.');
+                        });
+                    }
+                    return r.json();
+                })
+                .then(data => {
+                    Swal.close();
+                    if (data.success) {
+                        dashboardData = data.data;
+                        updateMetrics(data.data.overview);
+                        renderEmployeesTable(data.data.employees_list);
+                        renderCustomersTable(data.data.customers_list);
+                        renderReservationsTable(data.data.reservations_history);
+                        renderSalesTable(data.data.sales_history);
+                        renderAdvisorPerformance(data.data.advisor_performance);
+                    } else {
+                        Swal.fire({ 
+                            icon: 'error', 
+                            title: 'Error', 
+                            text: data.message,
+                            footer: 'Check browser console for more details'
+                        });
+                    }
+                })
+                .catch(err => {
+                    Swal.close();
+                    console.error('Full error:', err);
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Connection Error',
+                        html: '<p>' + err.message + '</p><small>Open browser console (F12) for more details</small>'
+                    });
+                });
+        }
+
+        function updateMetrics(overview) {
+            // Main metrics
+            document.getElementById('metricEmployees').textContent = overview.employees.total;
+            document.getElementById('metricAdvisors').textContent = overview.employees.advisor;
+            document.getElementById('metricManagers').textContent = overview.employees.manager;
+            document.getElementById('metricCustomers').textContent = overview.customers;
+            document.getElementById('metricVehicles').textContent = overview.vehicles.total_count;
+            document.getElementById('metricAvailable').textContent = overview.vehicles.available.count;
+            document.getElementById('metricSold').textContent = overview.vehicles.sold.count;
+            document.getElementById('metricRevenue').textContent = '$' + formatNumber(overview.sales.total_revenue);
+            document.getElementById('metricSalesCount').textContent = overview.sales.total_sales;
+            
+            // Secondary metrics
+            document.getElementById('statPending').textContent = overview.reservations.pending;
+            document.getElementById('statApproved').textContent = overview.reservations.approved;
+            document.getElementById('statCompleted').textContent = overview.reservations.completed;
+            document.getElementById('statRejected').textContent = overview.reservations.rejected;
+            document.getElementById('statReservationFees').textContent = '$' + formatNumber(overview.reservations.total_fees);
+            document.getElementById('statInventoryValue').textContent = '$' + formatNumber(overview.vehicles.total_inventory_value);
+        }
+
+        function renderEmployeesTable(employees) {
+            const tbody = document.getElementById('employeesTableBody');
+            if (!employees || employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No employees found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = employees.map(e => `
+                <tr>
+                    <td><strong>#${e.employed_id}</strong></td>
+                    <td>${e.full_name}</td>
+                    <td>${e.identification_number}</td>
+                    <td>${e.phone_number || 'N/A'}</td>
+                    <td>${e.email}</td>
+                    <td><span class="badge-role badge-${e.role}">${e.role.toUpperCase()}</span></td>
+                    <td>${e.total_reservations}</td>
+                    <td>${e.completed_reservations}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCustomersTable(customers) {
+            const tbody = document.getElementById('customersTableBody');
+            if (!customers || customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No customers found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = customers.map(c => `
+                <tr>
+                    <td><strong>#${c.person_id}</strong></td>
+                    <td>${c.full_name}</td>
+                    <td>${c.identification_number || 'N/A'}</td>
+                    <td>${c.phone_number || 'N/A'}</td>
+                    <td>${c.email}</td>
+                    <td>${c.total_reservations}</td>
+                    <td>${c.last_reservation_date ? formatDate(c.last_reservation_date) : 'Never'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderReservationsTable(reservations) {
+            const tbody = document.getElementById('reservationsTableBody');
+            if (!reservations || reservations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No reservations found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = reservations.map(r => `
+                <tr>
+                    <td><strong>#${r.transaction_id}</strong></td>
+                    <td>${formatDate(r.creation_date)}</td>
+                    <td>${formatDate(r.appointment_date)} ${formatTime(r.appointment_time)}</td>
+                    <td>${r.customer_name}</td>
+                    <td>${r.vehicle_info}</td>
+                    <td>${r.advisor_name || 'N/A'}</td>
+                    <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+                    <td>$${formatNumber(r.reservation_price)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderSalesTable(sales) {
+            const tbody = document.getElementById('salesTableBody');
+            if (!sales || sales.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No sales yet</td></tr>';
+                return;
+            }
+            tbody.innerHTML = sales.map(s => `
+                <tr>
+                    <td><strong>#${s.vehicle_id}</strong></td>
+                    <td><img src="${s.image || 'img/no-image.jpg'}" class="vehicle-thumb" alt="Vehicle"></td>
+                    <td>${s.brand}</td>
+                    <td>${s.model}</td>
+                    <td>${s.year}</td>
+                    <td>${s.color}</td>
+                    <td><strong>$${formatNumber(s.price)}</strong></td>
+                    <td>${s.added_by || 'N/A'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdvisorPerformance(performance) {
+            const container = document.getElementById('advisorPerformanceContainer');
+            if (!performance || performance.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">No advisor data available</p>';
+                return;
+            }
+            container.innerHTML = performance.map(p => `
+                <div class="row align-items-center mb-3 pb-3 border-bottom">
+                    <div class="col-md-3">
+                        <strong>${p.advisor_name}</strong>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="text-muted small">Total</div>
+                        <strong>${p.total_appointments}</strong>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="text-muted small">Completed</div>
+                        <strong class="text-primary">${p.completed}</strong>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="text-muted small">Pending</div>
+                        <strong class="text-warning">${p.pending}</strong>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-muted small">Success Rate: <strong>${p.completion_rate}%</strong></div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: ${p.completion_rate}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatNumber(n) { return new Intl.NumberFormat('es-CO').format(n); }
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            const [y, m, day] = d.split('-');
+            return new Date(y, m - 1, day).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        function formatTime(t) {
+            if (!t) return '';
+            const [h, m] = t.split(':');
+            const hr = parseInt(h);
+            return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+        }
+        function logout() {
+            Swal.fire({
+                title: 'Logout?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, logout'
+            }).then(r => { if (r.isConfirmed) window.location.href = 'index.html'; });
+        }
+    </script>
+</body>
+</html>

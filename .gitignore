@@ -1,0 +1,3 @@
+# Archivos de log de PHP y sistema
+*.log
+.DS_Store
